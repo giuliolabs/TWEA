@@ -1,0 +1,1487 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1F3F9E"><title>TWEA Flywheel</title><style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>TWEA Flywheel</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Zilla+Slab:wght@600;700&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Layout: "Bristol Blue" stationery office. Paper cards, traffic-light funding, typed memos and rubber stamps for human approval. */
+:root{
+  --paper:#F5F7FA; --card:#FFFFFF; --ink:#1B2333; --muted:#596273; --line:#D8DEE7; --sunk:#EDF0F5;
+  --blue:#1F3F9E; --blue-ink:#FFFFFF; --blue-soft:#E2E8F8;
+  --go:#1C7A43; --go-soft:#DDF1E5; --amber:#A76300; --amber-soft:#FBEDD3;
+  --watch:#5F51A0; --watch-soft:#EAE6F6; --stop:#B3362A; --stop-soft:#F8E0DC;
+  --f-head:"Zilla Slab", Rockwell, "Roboto Slab", Georgia, serif;
+  --f-body:"Atkinson Hyperlegible", Verdana, "Segoe UI", sans-serif;
+  --f-type:"Courier Prime", "Courier New", Courier, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11151D; --card:#1A202B; --ink:#E6EAF1; --muted:#9BA4B4; --line:#2D3544; --sunk:#222936;
+  --blue:#93A9F2; --blue-ink:#0E1630; --blue-soft:#1F2A49;
+  --go:#62C98F; --go-soft:#15301F; --amber:#F0B65A; --amber-soft:#382A10;
+  --watch:#B7AAF0; --watch-soft:#29243F; --stop:#F2897C; --stop-soft:#3B1C18;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11151D; --card:#1A202B; --ink:#E6EAF1; --muted:#9BA4B4; --line:#2D3544; --sunk:#222936;
+  --blue:#93A9F2; --blue-ink:#0E1630; --blue-soft:#1F2A49;
+  --go:#62C98F; --go-soft:#15301F; --amber:#F0B65A; --amber-soft:#382A10;
+  --watch:#B7AAF0; --watch-soft:#29243F; --stop:#F2897C; --stop-soft:#3B1C18;
+  color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16.5px;line-height:1.55}
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:700;line-height:1.15;margin:0;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.small{font-size:14px;color:var(--muted)}
+.label{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100%}
+.side{background:var(--card);border-right:1px solid var(--line);padding-block:24px;padding-left:max(18px, env(safe-area-inset-left,0px));padding-right:18px;display:flex;flex-direction:column;gap:24px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;gap:11px;align-items:center}
+.brand svg{width:40px;height:40px;flex:none}
+.brand b{font-family:var(--f-head);font-size:21px;display:block;line-height:1.05;color:var(--blue)}
+.brand span{font-size:12.5px;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:700;font-size:15.5px}
+.nav a:hover{background:var(--sunk)}
+.nav a[aria-current="page"]{background:var(--blue);color:var(--blue-ink)}
+.nav .n{font-size:13px;font-weight:700;min-width:24px;text-align:center;border-radius:12px;padding:0 7px;background:var(--sunk);color:var(--muted)}
+.nav a[aria-current="page"] .n{background:var(--blue-ink);color:var(--blue)}
+.nav .n.hot{background:var(--stop);color:#fff}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--muted)}
+.status{display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex:none}
+.dot.on{background:var(--go)}.dot.off{background:var(--amber)}
+
+main{min-width:0;padding-block:30px 72px;padding-left:max(16px, 3.2vw);padding-right:max(16px, env(safe-area-inset-right,0px), 3.2vw)}
+.view{max-width:1100px;display:flex;flex-direction:column;gap:22px}
+.pagehead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:14px}
+.pagehead h1{font-size:clamp(30px,3.4vw,40px);color:var(--ink)}
+.pagehead p{color:var(--muted);max-width:64ch;margin-top:6px;font-size:17px}
+.howto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.howto div{background:var(--blue-soft);border-radius:10px;padding:12px 14px;font-size:15px;display:flex;gap:10px;align-items:flex-start}
+.howto b.k{font-family:var(--f-head);font-size:22px;line-height:1;color:var(--blue)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:2px solid var(--line);background:var(--card);padding:9px 15px;border-radius:9px;cursor:pointer;font-weight:700;font-size:15px;line-height:1.2;white-space:nowrap;color:var(--ink);text-decoration:none}
+.btn:hover{border-color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.btn.go{background:var(--go);border-color:var(--go);color:#fff}
+.btn.sm{padding:6px 11px;font-size:14px}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+
+/* Home */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:center}
+.hero h1{font-size:clamp(34px,4.6vw,54px);line-height:1.02;color:var(--ink)}
+.hero h1 span{color:var(--blue)}
+.hero p{margin-top:14px;font-size:18px;color:var(--muted);max-width:52ch}
+.bridge{width:100%;max-width:460px;height:auto;justify-self:end}
+.steps3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.step svg{width:56px;height:56px}
+.step h3{font-size:21px}
+.step p{font-size:15.5px;color:var(--muted)}
+.step .tag{font-size:13px;font-weight:700;color:var(--blue)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:3px;min-width:0;text-decoration:none;color:var(--ink)}
+.tile:hover{border-color:var(--blue)}
+.tile .v{font-family:var(--f-head);font-size:38px;line-height:1;color:var(--blue)}
+.tile .l{font-weight:700;font-size:15px}
+.tile .s{font-size:13.5px;color:var(--muted)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.brief{display:flex;flex-direction:column;gap:16px}
+.brief h3{font-size:19px}
+.brief ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.brief li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:6px;font-size:15px}
+.mk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700}
+.mk.y{background:var(--go-soft);color:var(--go)}
+.mk.p{background:var(--amber-soft);color:var(--amber)}
+.mk.n{background:var(--sunk);color:var(--muted)}
+.olist{margin:10px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-size:15.5px}
+.road{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+.road div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;font-size:15px}
+.road b{color:var(--blue);font-size:14px}
+
+/* Funding */
+.legend{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.lg{border-radius:10px;padding:10px 12px;border:2px solid transparent;cursor:pointer;text-align:left;background:var(--card);border-color:var(--line);display:flex;flex-direction:column;gap:2px}
+.lg b{font-size:15.5px;display:flex;align-items:center;gap:7px}
+.lg span{font-size:13px;color:var(--muted);line-height:1.35}
+.lg i{width:12px;height:12px;border-radius:50%;flex:none}
+.lg[aria-pressed="true"]{border-color:var(--ink)}
+.c-apply{--c:var(--go);--cs:var(--go-soft)}
+.c-partner{--c:var(--amber);--cs:var(--amber-soft)}
+.c-signpost{--c:var(--blue);--cs:var(--blue-soft)}
+.c-watch{--c:var(--watch);--cs:var(--watch-soft)}
+.c-filtered{--c:var(--stop);--cs:var(--stop-soft)}
+.lg i,.chip-lane i{background:var(--c)}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.toolbar input{max-width:320px}
+.calendar{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.ticket{flex:none;width:170px;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--c);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.ticket .d{font-family:var(--f-head);font-size:22px;line-height:1}
+.ticket .n{font-size:13.5px;font-weight:700;line-height:1.25}
+.ticket .left{font-size:12.5px;color:var(--muted)}
+.ticket .left.urgent{color:var(--stop);font-weight:700}
+.opps{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.opp{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--c);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.chip-lane{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--cs);color:var(--c);white-space:nowrap}
+.chip-lane i{width:9px;height:9px;border-radius:50%}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.chip.urgent{background:var(--stop-soft);color:var(--stop)}
+.chip.soon{background:var(--amber-soft);color:var(--amber)}
+.chip.ok{background:var(--go-soft);color:var(--go)}
+.chip.ex{background:var(--amber-soft);color:var(--amber)}
+.opp .who{font-size:13.5px;color:var(--muted)}
+.opp h3{font-size:20px;margin-top:2px}
+.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;margin:0;font-size:15px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-weight:700}
+.view-us{background:var(--cs);border-radius:9px;padding:10px 12px;font-size:15px}
+.view-us b{color:var(--c)}
+details.more summary{cursor:pointer;font-size:14.5px;color:var(--blue);font-weight:700}
+details.more p{font-size:14.5px;margin-top:6px}
+.fit{display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:center;background:var(--sunk);border-radius:10px;padding:10px 12px}
+.fit svg{width:56px;height:56px}
+.fit ul{margin:4px 0 0;padding-left:18px;font-size:14px}
+.fit .verdict{font-weight:700;font-size:15px}
+.src{font-size:13.5px}
+
+/* World finder */
+.finder{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.finder-map,.finder-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.finder-side{gap:16px}
+.worldmap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-areas:"na eu eu as" "na af me as" "la af oc gl" "an an an an";gap:6px}
+.cont{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:10px 11px;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:4px;min-height:74px;position:relative;overflow:hidden}
+.cont b{font-size:14.5px;line-height:1.2;position:relative}
+.cont .cn{font-family:var(--f-head);font-size:26px;line-height:1;color:var(--blue);position:relative}
+.cont .bar{position:absolute;left:0;bottom:0;height:5px;background:var(--blue);opacity:.35}
+.cont:hover{border-color:var(--blue)}
+.cont[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
+.cont[aria-pressed="true"] .cn{color:var(--blue-ink)}
+.cont.empty0{cursor:help;min-height:44px;flex-direction:row;align-items:center;opacity:.75;border-style:dashed}
+.cont.empty0 .cn{font-size:18px}
+.subplaces{display:flex;flex-wrap:wrap;gap:6px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pills button,.subplaces button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.pills button .num,.subplaces button .num{color:var(--muted);font-weight:400}
+.pills button[aria-pressed="true"],.subplaces button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pills button[aria-pressed="true"] .num,.subplaces button[aria-pressed="true"] .num{color:var(--paper)}
+.pills button:disabled{opacity:.4;cursor:default}
+.activebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:15px}
+.activebar .tag{display:inline-flex;gap:6px;align-items:center;background:var(--blue-soft);color:var(--blue);border-radius:999px;padding:4px 6px 4px 12px;font-weight:700;font-size:14px}
+.activebar .tag button{border:0;background:var(--card);color:var(--blue);width:22px;height:22px;border-radius:50%;cursor:pointer;font-weight:700;line-height:1}
+.where{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--ink);background:var(--sunk);border-radius:6px;padding:2px 8px}
+.where svg{width:13px;height:13px}
+.trust{font-size:12.5px;color:var(--muted);display:inline-flex;gap:5px;align-items:center}
+.trust i{width:8px;height:8px;border-radius:50%;background:var(--go)}
+.trust.dir i{background:var(--amber)}
+.listwrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.ftable{width:100%;border-collapse:collapse;font-size:14.5px;min-width:820px}
+.ftable th{text-align:left;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--card)}
+.ftable td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.ftable td:first-child{border-left:5px solid var(--c)}
+.ftable tr:hover td{background:var(--paper)}
+.ftable .nm{font-weight:700}
+.ftable .fd{color:var(--muted);font-size:13px}
+
+/* Automations */
+.autos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.auto{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.auto .clock{display:flex;gap:12px;align-items:center}
+.auto .clock svg{width:44px;height:44px;flex:none}
+.auto h3{font-size:20px}
+.auto .when{font-weight:700;color:var(--blue);font-size:15px}
+.auto ol{margin:0;padding-left:20px;font-size:15px;display:flex;flex-direction:column;gap:3px}
+.option{border:2px dashed var(--amber);display:flex;flex-direction:column;gap:12px}
+.auto .last{font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.run{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:14.5px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.run:last-child{border-bottom:0}
+.run b{font-size:15px}
+.newb{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--blue);color:var(--blue-ink)}
+@media (max-width:820px){.autos{grid-template-columns:minmax(0,1fr)}}
+
+/* Forms */
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:15px;font-weight:700}
+label.f .hint{font-weight:400;color:var(--muted);font-size:13.5px}
+input[type=text],input[type=date],input[type=url],input[type=search],select,textarea{border:2px solid var(--line);background:var(--paper);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);outline:none}
+textarea{resize:vertical}
+.check{display:flex;gap:9px;align-items:flex-start;font-size:15px}
+.check input{width:18px;height:18px;margin-top:3px;flex:none}
+.quick{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.quick .card{display:flex;flex-direction:column;gap:10px}
+.quick h3{font-size:21px}
+details.full-form > summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:16px;list-style:none}
+details.full-form > summary::before{content:"+ "}
+details.full-form[open] > summary::before{content:"– "}
+
+.stories{display:flex;flex-direction:column;gap:10px}
+.story{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:78px minmax(0,1fr);gap:16px}
+.story .date{text-align:center;border:2px solid var(--line);border-radius:10px;padding:6px 4px;align-self:start;font-size:13px;color:var(--muted);font-weight:700}
+.story .date b{display:block;font-family:var(--f-head);font-size:28px;color:var(--ink);line-height:1.05}
+.story h3{font-size:19px}
+.story p{font-size:15.5px;margin-top:4px}
+.story .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.story .meta .chip{white-space:normal;max-width:100%;line-height:1.35}
+.story .acts{margin-top:10px}
+.empty{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;color:var(--muted);font-size:15.5px}
+
+/* Newsletter */
+.checklist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.checklist li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:4px}
+.checklist li b{font-family:var(--f-head);font-size:20px;color:var(--blue)}
+.checklist li.done{border-color:var(--go)}
+.checklist li.done b{color:var(--go)}
+
+/* Approvals: typed memos + stamps */
+.memo{position:relative;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:20px 22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 0 var(--line),0 3px 0 -1px var(--card),0 4px 0 -1px var(--line)}
+.memo .mhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 14px;font-family:var(--f-type);font-size:14.5px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.memo .mhead dt{font-weight:700}
+.memo .mhead dd{margin:0}
+.memo h3{font-size:20px}
+.mbody{font-family:var(--f-type);font-size:15px;line-height:1.55;max-height:260px;overflow:auto;padding-right:6px}
+.mbody.open{max-height:none}
+.memo textarea{min-height:260px;font-family:var(--f-type);font-size:14.5px}
+.stamp{position:absolute;top:18px;right:20px;transform:rotate(-8deg);font-family:var(--f-type);font-weight:700;font-size:20px;letter-spacing:.12em;text-transform:uppercase;border:4px double currentColor;border-radius:6px;padding:4px 12px;opacity:.88;pointer-events:none;text-align:center;line-height:1.1;background:var(--card)}
+.stamp small{display:block;font-size:11px;letter-spacing:.04em}
+.stamp.approved{color:var(--go)}
+.stamp.changes{color:var(--amber)}
+.stamp.rejected{color:var(--stop)}
+.stamp.needs_review{color:var(--blue);font-size:15px}
+.stampbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px dashed var(--line);padding-top:12px}
+.sbtn{font-family:var(--f-type);font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:3px double currentColor;background:transparent;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:14.5px}
+.sbtn.approve{color:var(--go)}.sbtn.changes{color:var(--amber)}.sbtn.reject{color:var(--stop)}
+.sbtn:hover{background:var(--sunk)}
+.subcheck{background:var(--go-soft);border-radius:9px;padding:12px 14px;font-size:14.5px}
+.subcheck ul{margin:6px 0 0;padding-left:20px}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:14.5px;font-weight:700;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.md h3{font-size:19px;margin:14px 0 6px}
+.md h4{font-size:17px;margin:14px 0 4px;font-family:var(--f-head)}
+.md p{margin:6px 0}
+.md ul{margin:6px 0;padding-left:22px}
+.md li{margin:3px 0}
+.md mark{background:var(--amber-soft);color:var(--amber);border-radius:4px;padding:0 3px;font-weight:700}
+
+/* Ideas */
+.ideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.idea{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.idea h3{font-size:19px}
+.idea p{font-size:15px}
+.idea .how{color:var(--muted);font-size:14.5px}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:9px;overflow:hidden;margin-top:auto;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:6px 14px;font-size:14.5px;font-weight:700;cursor:pointer;border-right:2px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--blue);color:var(--blue-ink)}
+
+/* Drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,16,30,.45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(660px,100%);background:var(--card);border-left:1px solid var(--line);z-index:41;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
+.drawer header{padding:18px 22px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.drawer h2{font-size:24px;margin-top:3px}
+.drawer .dbody{flex:1;overflow:auto;padding:16px 22px}
+.drawer footer{padding:12px 22px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.drawer textarea.edit{width:100%;min-height:60vh;font-family:var(--f-type);font-size:14.5px}
+.drawer .tip{font-size:14px;background:var(--amber-soft);color:var(--ink);border-radius:9px;padding:9px 12px;margin-bottom:12px}
+.post{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.post textarea{min-height:120px}
+.post .cnt{font-size:13px;color:var(--muted);align-self:flex-end}
+.post .cnt.over{color:var(--stop);font-weight:700}
+.thinking{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:15.5px}
+.thinking i{width:10px;height:10px;border-radius:50%;background:var(--blue);animation:pulse 1.1s infinite ease-in-out}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:10px;font-size:15px;z-index:60;max-width:calc(100% - 32px);font-weight:700}
+.warn{font-size:14.5px;background:var(--amber-soft);color:var(--amber);padding:9px 12px;border-radius:9px}
+
+@media (prefers-reduced-motion: reduce){.thinking i{animation:none}}
+@media (max-width:1000px){
+  .hero,.two,.quick{grid-template-columns:minmax(0,1fr)}
+  .bridge{justify-self:start;max-width:380px}
+  .tiles,.checklist{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .legend{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .finder{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:sticky;top:0;height:auto;z-index:20;flex-direction:row;align-items:center;gap:12px;padding-block:10px;padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));padding-top:calc(10px + env(safe-area-inset-top,0px));border-right:0;border-bottom:1px solid var(--line)}
+  .brand span,.side-foot{display:none}
+  .brand b{font-size:17px}.brand svg{width:32px;height:32px}
+  .nav{flex-direction:row;overflow-x:auto;min-width:0;flex:1}
+  .nav a{white-space:nowrap;padding:8px 11px;font-size:14.5px}
+  .steps3,.howto{grid-template-columns:minmax(0,1fr)}
+  .form{grid-template-columns:minmax(0,1fr)}
+  .story{grid-template-columns:minmax(0,1fr)}
+  .story .date{justify-self:start;padding:6px 12px}
+  .opps,.ideas{grid-template-columns:minmax(0,1fr)}
+  .legend{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .worldmap{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"eu eu" "na as" "me af" "la oc" "gl gl" "an an"}
+  .stamp{position:static;align-self:flex-start;transform:rotate(-3deg)}
+  .road div{grid-template-columns:minmax(0,1fr);gap:2px}
+}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="var(--blue)"/><path d="M8 25 Q20 9 32 25" fill="none" stroke="var(--blue-ink)" stroke-width="2.4"/><path d="M8 25 H32" stroke="var(--blue-ink)" stroke-width="2.4"/><path d="M14 25 V19.5 M20 25 V17 M26 25 V19.5" stroke="var(--blue-ink)" stroke-width="1.6"/></svg>
+      <div><b>TWEA Flywheel</b><span>Funding · Stories · Newsletter</span></div>
+    </div>
+    <nav class="nav" aria-label="Pages">
+      <a href="#home" data-v="home">Home</a>
+      <a href="#funding" data-v="funding">Find funding <span class="n" id="n-funding"></span></a>
+      <a href="#stories" data-v="stories">Log a story <span class="n" id="n-stories"></span></a>
+      <a href="#newsletter" data-v="newsletter">Newsletter</a>
+      <a href="#approve" data-v="approve">Approve drafts <span class="n" id="n-approve"></span></a>
+      <a href="#auto" data-v="auto">Automations <span class="n" id="n-auto"></span></a>
+      <a href="#ideas" data-v="ideas">More ideas</a>
+      <a href="#about" data-v="about">About TWEA</a>
+    </nav>
+    <div class="side-foot">
+      <span class="status"><span class="dot" id="ai-dot"></span><span id="ai-label">Checking Claude…</span></span>
+      <span class="status"><span class="dot" id="db-dot"></span><span id="db-label">Connecting…</span></span>
+      <span>Version 1.0 · prepared for the TWEA meeting in Bristol, 2 December 2026</span>
+    </div>
+  </aside>
+
+  <main>
+    <!-- HOME -->
+    <section class="view" data-view="home">
+      <div class="hero">
+        <div>
+          <div class="label">Tech-West England Advocates</div>
+          <h1 style="margin-top:8px">Less admin.<br><span>More founders helped.</span></h1>
+          <p>One place to find funding, turn what we do into posts and a quarterly newsletter, and check every word before it goes out. Claude writes the first drafts. A TWEA person always has the final say.</p>
+        </div>
+        <svg class="bridge" viewBox="0 0 460 170" role="img" aria-label="Line drawing of a suspension bridge over a gorge">
+          <path d="M0 150 C40 120 60 112 72 60 L72 160 L0 160Z" fill="var(--sunk)"/>
+          <path d="M460 150 C420 120 400 112 388 60 L388 160 L460 160Z" fill="var(--sunk)"/>
+          <rect x="62" y="22" width="20" height="58" rx="2" fill="none" stroke="var(--blue)" stroke-width="3"/>
+          <rect x="378" y="22" width="20" height="58" rx="2" fill="none" stroke="var(--blue)" stroke-width="3"/>
+          <path d="M72 26 Q230 112 388 26" fill="none" stroke="var(--blue)" stroke-width="3"/>
+          <path d="M60 80 H400" stroke="var(--ink)" stroke-width="4"/>
+          <g stroke="var(--blue)" stroke-width="1.4">
+            <path d="M104 41 V80M136 53 V80M168 63 V80M200 69 V80M230 71 V80M260 69 V80M292 63 V80M324 53 V80M356 41 V80"/>
+          </g>
+          <path d="M120 158 C180 150 280 150 340 158" fill="none" stroke="var(--blue)" stroke-width="2" stroke-dasharray="6 6" opacity=".5"/>
+        </svg>
+      </div>
+
+      <div class="steps3">
+        <div class="step">
+          <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="24" cy="24" r="14" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="3"/><path d="M34 34 L46 46" stroke="var(--blue)" stroke-width="5" stroke-linecap="round"/><text x="24" y="30" text-anchor="middle" font-family="Zilla Slab, Georgia, serif" font-weight="700" font-size="17" fill="var(--blue)">£</text></svg>
+          <span class="tag">Step 1 · Find &amp; log</span>
+          <h3>We gather the raw material</h3>
+          <p>Funding calls are checked and sorted like traffic lights. After an event, someone logs what happened in two minutes or pastes a message.</p>
+        </div>
+        <div class="step">
+          <svg viewBox="0 0 56 56" aria-hidden="true"><rect x="10" y="6" width="36" height="44" rx="3" fill="var(--card)" stroke="var(--blue)" stroke-width="3"/><path d="M17 17 H39 M17 25 H39 M17 33 H31" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"/></svg>
+          <span class="tag">Step 2 · Draft</span>
+          <h3>Claude writes a first draft</h3>
+          <p>Bid outlines, social posts and the newsletter, in TWEA's voice, using only facts we logged. Gaps show as <mark style="background:var(--amber-soft);color:var(--amber);font-weight:700;padding:0 3px;border-radius:4px">[to fill in]</mark>.</p>
+        </div>
+        <div class="step">
+          <svg viewBox="0 0 56 56" aria-hidden="true"><rect x="20" y="6" width="16" height="18" rx="4" fill="var(--go-soft)" stroke="var(--go)" stroke-width="3"/><rect x="10" y="24" width="36" height="10" rx="3" fill="var(--go-soft)" stroke="var(--go)" stroke-width="3"/><path d="M8 44 H48" stroke="var(--go)" stroke-width="4" stroke-linecap="round"/></svg>
+          <span class="tag">Step 3 · Approve</span>
+          <h3>A person stamps it</h3>
+          <p>Giulio and the comms team read, edit and stamp each draft: Approved, Send back or Not now. Nothing is posted, sent or submitted without that stamp.</p>
+        </div>
+      </div>
+
+      <div class="tiles" id="tiles"></div>
+
+      <div class="two">
+        <div class="card brief">
+          <div class="label">Does version 1 do what the brief asked?</div>
+          <div>
+            <h3>1. Find funding and bids, with oversight</h3>
+            <ul>
+              <li><span class="mk y">✓</span><span><b id="brief-n">70</b> real funding routes from Bristol to Hong Kong, sorted and filterable by continent and country, including small local funders most people miss</span></li>
+              <li><span class="mk y">✓</span><span>Claude scores how well each one fits TWEA and drafts a bid outline using our own evidence</span></li>
+              <li><span class="mk y">✓</span><span>Every bid is approved by a person, with a checklist of what's needed to submit</span></li>
+              <li><span class="mk y">✓</span><span>Searching is automatic: every Monday a scan adds new funding from around the world, drafts bids for strong matches and puts deadlines in the calendar (see <a href="#auto">Automations</a>)</span></li>
+              <li><span class="mk n">–</span><span>Submitting is left to a person on purpose. Funder portals need a named applicant, and the Lottery does not accept applications written by outsiders</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>2. Social posts and the quarterly newsletter</h3>
+            <ul>
+              <li><span class="mk y">✓</span><span>"At an event now?" box turns one sentence into LinkedIn, X and Instagram posts</span></li>
+              <li><span class="mk y">✓</span><span>Stories collect all quarter and Claude packages them into the newsletter</span></li>
+              <li><span class="mk y">✓</span><span>Giulio and the comms team approve every post and issue</span></li>
+              <li><span class="mk y">✓</span><span>Gathering is automatic: every Thursday public TWEA news is collected from the web and posts are drafted. A newsletter draft is built on the 20th of each quarter's last month</span></li>
+              <li><span class="mk p">½</span><span>Approved posts are copied into the social media tools by hand. Automatic posting with Metricool is an option for the meeting to decide on (see Automations)</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>3. Other things we could automate</h3>
+            <ul><li><span class="mk y">✓</span><span>Ten more ideas, ready for the room to mark Now, Next or Later</span></li></ul>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="label">Coming up</div>
+            <div id="home-dates" style="margin-top:10px;display:flex;flex-direction:column;gap:8px"></div>
+            <a class="btn sm" href="#funding" style="margin-top:12px">See all funding</a>
+          </div>
+          <div class="card">
+            <div class="label">Try it in the meeting</div>
+            <ol class="olist">
+              <li><a href="#funding">Find funding</a>: press <b>Check fit for all</b>, then <b>Draft a bid</b> on Awards for All.</li>
+              <li><a href="#stories">Log a story</a>: type one sentence about today's meeting into <b>At an event now?</b></li>
+              <li><a href="#newsletter">Newsletter</a>: build the October to December issue.</li>
+              <li><a href="#approve">Approve drafts</a>: edit one, stamp it Approved, send another back.</li>
+              <li><a href="#ideas">More ideas</a>: mark each idea Now, Next or Later together.</li>
+            </ol>
+          </div>
+          <div class="card">
+            <div class="label">Next steps (proposal)</div>
+            <div class="road">
+              <div><b>Dec 2026</b><span>Version 1: this tool. People trigger each step.</span></div>
+              <div><b>Jan–Feb 2027</b><span>Weekly automatic funding scan and email digest. Approved posts go straight into the social media scheduler. Newsletter lands as a draft in the email tool.</span></div>
+              <div><b>Mar 2027</b><span>First real quarterly newsletter made this way. A library of reusable bid answers.</span></div>
+              <div><b>Spring 2027</b><span>Impact reports for sponsors and founder matchmaking.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FUNDING -->
+    <section class="view" data-view="funding" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Priority 1</div>
+          <h1>Find funding</h1>
+          <p><span id="fund-total">70</span> funding routes from <span id="fund-countries">14</span> countries, researched on 4 November 2026. Pick a part of the world, then narrow down by who the money is for, what kind it is and when it closes.</p>
+        </div>
+        <button class="btn primary ai" id="score-all">Check fit for the ones shown</button>
+      </div>
+
+      <div class="finder">
+        <div class="finder-map">
+          <div class="label">1 · Where in the world?</div>
+          <div class="worldmap" id="worldmap"></div>
+          <div class="subplaces" id="subplaces"></div>
+        </div>
+        <div class="finder-side">
+          <div>
+            <div class="label">2 · Who is the money for?</div>
+            <div class="pills" id="f-who"></div>
+          </div>
+          <div>
+            <div class="label">3 · What kind of support?</div>
+            <div class="pills" id="f-type"></div>
+          </div>
+          <div>
+            <div class="label">4 · When?</div>
+            <div class="pills" id="f-when"></div>
+          </div>
+          <div class="row" style="gap:14px">
+            <label class="f" style="flex-direction:row;align-items:center;gap:8px;font-size:14.5px">Country <select id="f-country" style="width:auto;max-width:190px"></select></label>
+            <label class="check" style="font-size:14.5px;align-items:center"><input type="checkbox" id="f-hideout" style="margin-top:0"> Hide "Not for us"</label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:8px">What to do with it (traffic lights)</div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">Deadlines in the next four months, worldwide</div>
+        <div class="calendar" id="calendar"></div>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="opp-search" placeholder="Search, e.g. Bristol, AI, women, Hong Kong">
+        <div class="row">
+          <label class="f" style="flex-direction:row;align-items:center;gap:8px;font-size:14.5px">Sort <select id="f-sort" style="width:auto"><option value="lane">Best for TWEA first</option><option value="due">Closing soonest</option><option value="big">Biggest amount</option></select></label>
+          <div class="seg" role="group" aria-label="Layout"><button type="button" data-layout="cards" aria-pressed="true">Cards</button><button type="button" data-layout="list" aria-pressed="false">List</button></div>
+        </div>
+      </div>
+      <div class="activebar" id="activebar"></div>
+      <div class="opps" id="opps"></div>
+      <div class="listwrap" id="opps-list" hidden></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px">
+        <h3 style="font-size:21px">Found one we missed?</h3>
+        <p class="small">Paste the text of any funding call from an email, newsletter or website. Claude reads it, fills in the details and picks a colour. In the next version a weekly scan will do this automatically.</p>
+        <label class="f" for="opp-paste">Funding call text</label>
+        <textarea id="opp-paste" rows="4" placeholder="Paste here…"></textarea>
+        <div class="row"><button class="btn primary ai" id="opp-extract">Add to the list</button><span class="small" id="opp-extract-status"></span></div>
+      </div>
+    </section>
+
+    <!-- STORIES -->
+    <section class="view" data-view="stories" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Priority 2</div>
+          <h1>Log a story</h1>
+          <p>Log each event, founder win or partnership once. It becomes social posts today, part of the newsletter at the end of the quarter, and evidence for the next bid.</p>
+        </div>
+      </div>
+      <div class="quick">
+        <form class="card" id="event-form" autocomplete="off">
+          <h3>At an event now?</h3>
+          <p class="small">One or two sentences is enough. Claude drafts the posts while the event is still on.</p>
+          <label class="f" for="ev-text">What's happening?</label>
+          <textarea id="ev-text" rows="3" required placeholder="e.g. 40 founders at our AI clinic in Bristol tonight. Big questions about using AI for bids and invoicing."></textarea>
+          <label class="check"><input type="checkbox" id="ev-consent"> People named or pictured are happy to be shared</label>
+          <div class="row"><button class="btn primary ai" type="submit">Save and draft posts</button></div>
+        </form>
+        <div class="card">
+          <h3>Paste an update</h3>
+          <p class="small">An email recap, a WhatsApp message or meeting notes. Claude turns it into a tidy story entry for you to check.</p>
+          <label class="f" for="paste-text">Update text</label>
+          <textarea id="paste-text" rows="3" placeholder="Paste here…"></textarea>
+          <div class="row"><button class="btn primary ai" id="paste-go">Turn into a story</button><span class="small" id="paste-status"></span></div>
+        </div>
+      </div>
+      <details class="card full-form">
+        <summary>Fill in the full form instead</summary>
+        <form id="story-form" autocomplete="off" style="margin-top:14px">
+          <div class="form">
+            <label class="f full">What happened? <input type="text" id="st-title" required placeholder="e.g. AI clinic for founders in Bristol"></label>
+            <label class="f">Date <input type="date" id="st-date" required></label>
+            <label class="f">Type
+              <select id="st-type"><option>Event</option><option>Founder win</option><option>Partnership</option><option>Programme</option><option>Media &amp; awards</option><option>International</option></select>
+            </label>
+            <label class="f full">The story <span class="hint">Who came, what they learned, a quote if you have one</span><textarea id="st-what" rows="3" required></textarea></label>
+            <label class="f">People and partners <input type="text" id="st-people"></label>
+            <label class="f">Numbers <span class="hint">People who came, founders helped, money raised</span><input type="text" id="st-numbers"></label>
+            <label class="f full">Link to photos or the event page <input type="url" id="st-link" placeholder="https://"></label>
+            <label class="check full"><input type="checkbox" id="st-consent"> People named or pictured are happy to be shared</label>
+          </div>
+          <div class="row" style="margin-top:12px"><button class="btn primary" type="submit">Save story</button></div>
+        </form>
+      </details>
+      <div class="label" id="stories-count"></div>
+      <div class="stories" id="stories"></div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="view" data-view="newsletter" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Priority 2</div>
+          <h1>Quarterly newsletter</h1>
+          <p>At the end of each quarter, Claude puts that quarter's stories and the funding news for founders into one draft issue. Giulio and the comms team approve it before it is sent.</p>
+        </div>
+        <label class="f" style="flex-direction:row;align-items:center;gap:10px">Quarter <select id="nl-quarter" style="width:auto"></select></label>
+      </div>
+      <ol class="checklist" id="nl-check"></ol>
+      <div class="row"><button class="btn primary ai" id="nl-build">Build this issue</button><span class="small">The draft opens on the right. Send it to Approve drafts when it reads well.</span></div>
+      <div class="two">
+        <div class="card"><div class="label">Stories going in</div><ul id="nl-stories" style="margin:10px 0 0;padding-left:20px;font-size:15.5px"></ul></div>
+        <div class="card"><div class="label">Funding news for founders</div><ul id="nl-signposts" style="margin:10px 0 0;padding-left:20px;font-size:15.5px"></ul></div>
+      </div>
+    </section>
+
+    <!-- APPROVE -->
+    <section class="view" data-view="approve" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Human oversight</div>
+          <h1>Approve drafts</h1>
+          <p>Every draft lands here as a memo. Read it and edit it if needed, then stamp it. Only Approved items move on, and a person still presses send.</p>
+        </div>
+      </div>
+      <div class="filters" id="q-filters" role="group" aria-label="Show memos by stamp"></div>
+      <div id="queue" style="display:flex;flex-direction:column;gap:18px"></div>
+    </section>
+
+    <!-- AUTOMATIONS -->
+    <section class="view" data-view="auto" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Runs by itself</div>
+          <div style="display:flex;gap:12px;align-items:center"><h1>Automations</h1></div>
+          <p>Four scheduled jobs do the legwork while everyone is busy. They search, gather and draft. They never post, submit or contact anyone except Giulio: every result lands in Approve drafts or on the funding list for a person to check. For now they run from Giulio's Claude account. Two options for the meeting follow below.</p>
+        </div>
+      </div>
+      <div class="autos" id="autos"></div>
+      <div class="card option">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="label">Option to discuss on 2 December · starter kit ready</div>
+            <h3 style="font-size:22px;margin-top:4px">Run the automations from TWEA's own GitHub</h3>
+          </div>
+          <span class="chip ex">Needs Richard's go-ahead</span>
+        </div>
+        <p style="font-size:16px;max-width:70ch">Today the four jobs above run from Giulio's Claude account. To make them TWEA's, so anyone who manages the project can run, change or hand them on, the same jobs can run as scheduled GitHub Actions in a TWEA-owned repository, using TWEA's own Claude API key.</p>
+        <div class="two" style="gap:18px">
+          <div>
+            <div class="label">How it would work</div>
+            <ol class="olist">
+              <li>Every Monday and Thursday, and at quarter end, GitHub runs the job and Claude searches the web.</li>
+              <li>The results arrive as a pull request: new funding, stories, bid and post drafts, or the newsletter.</li>
+              <li>A TWEA reviewer reads it and merges it, which is the approval step. Nothing is published before that.</li>
+              <li>This tool, hosted free on GitHub Pages, shows the merged results. The quarter reminder arrives as a GitHub issue.</li>
+            </ol>
+          </div>
+          <div>
+            <div class="label">What it would need</div>
+            <ul class="olist" style="list-style:disc">
+              <li>Richard agreeing to it, and a GitHub account or organisation owned by TWEA</li>
+              <li>A Claude API key for TWEA, with a monthly spending limit (paid per use)</li>
+              <li>One or two people who can review and merge pull requests</li>
+              <li>About 30 minutes to set up by following the README</li>
+            </ul>
+            <p class="small" style="margin-top:10px">The starter kit is built and ready to upload. It has not been run against the live Claude API yet. Its first run should be watched.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card option">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="label">Option to discuss on 2 December · not set up</div>
+            <h3 style="font-size:22px;margin-top:4px">Automatic posting with Metricool</h3>
+          </div>
+          <span class="chip ex">Needs Richard's go-ahead</span>
+        </div>
+        <p style="font-size:16px;max-width:70ch">Today, approved posts are copied into the social media tools by hand. Metricool is a social media scheduler with a built-in review step. With it, approved posts could go straight into a posting schedule, and a person would still give the final approval before anything is published.</p>
+        <div class="two" style="gap:18px">
+          <div>
+            <div class="label">How it would work</div>
+            <ol class="olist">
+              <li>A post is drafted here and stamped Approved, as now.</li>
+              <li>It's sent to TWEA's Metricool account as "waiting for review", with a suggested time.</li>
+              <li>Richard or the comms team gets an email and approves or rejects it in Metricool. One rejection stops it.</li>
+              <li>Only then is it published on LinkedIn, X or Instagram.</li>
+            </ol>
+          </div>
+          <div>
+            <div class="label">What it would need</div>
+            <ul class="olist" style="list-style:disc">
+              <li>Richard agreeing to use it on TWEA's behalf</li>
+              <li>A TWEA Metricool account, set up and owned by TWEA, with its social accounts connected</li>
+              <li>The comms team added as reviewers</li>
+              <li>A Metricool plan that includes the review step</li>
+            </ul>
+            <p class="small" style="margin-top:10px">TWEA's social accounts are not connected to anything here, and nothing will be until Richard asks for it.</p>
+          </div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="card">
+          <div class="label">Latest runs</div>
+          <div id="runlog" style="margin-top:10px;display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+        <div class="card brief">
+          <div class="label">How this answers Richard's two points</div>
+          <div>
+            <h3>Funding: find, search and bid, with oversight</h3>
+            <ul>
+              <li><span class="mk y">✓</span><span>Every Monday, Claude searches funders, governments, foundations, companies and funding directories worldwide, and adds anything new to Find funding with a colour and "Our view"</span></li>
+              <li><span class="mk y">✓</span><span>Strong matches get a draft bid outline, waiting in Approve drafts</span></li>
+              <li><span class="mk y">✓</span><span>New Apply now and Team up deadlines go into Giulio's calendar, with a weekly email summary</span></li>
+              <li><span class="mk p">½</span><span>Submission: once a bid is stamped Approved, a named TWEA person submits it on the funder's portal using the checklist. Funders require a real applicant to do this</span></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Marketing: posts and the quarterly newsletter, with oversight</h3>
+            <ul>
+              <li><span class="mk y">✓</span><span>Every Thursday, Claude collects public TWEA news from the web into the story log and drafts posts for every shareable story</span></li>
+              <li><span class="mk y">✓</span><span>At the start of each quarter's last month, the team gets a reminder to log anything missing</span></li>
+              <li><span class="mk y">✓</span><span>On the 20th of March, June, September and December, Claude packages the quarter into a newsletter draft for Giulio and the comms team</span></li>
+              <li><span class="mk p">½</span><span>Posting: approved posts are copied into the social media tools by hand. Automatic posting with Metricool is an option for Richard to decide on (below)</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IDEAS -->
+    <section class="view" data-view="ideas" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Priority 3</div>
+          <h1>More ideas</h1>
+          <p>Ten more jobs that take up volunteer time. Mark each one together in the meeting. Your choices are saved here and become the plan for the next version.</p>
+        </div>
+      </div>
+      <div class="ideas" id="ideas"></div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="view" data-view="about" hidden>
+      <div class="pagehead">
+        <div>
+          <div class="label">Settings</div>
+          <h1>About TWEA</h1>
+          <p>Claude reads this before it checks funding fit or writes anything. The more exact it is, the better the drafts. TWEA's legal structure matters most, because it decides which funds we can apply to ourselves.</p>
+        </div>
+      </div>
+      <div class="card" style="display:flex;flex-direction:column;gap:14px">
+        <label class="f">Who TWEA is, what it does and who it serves <textarea id="pf-text" rows="10"></textarea></label>
+        <label class="f">How we sound in posts and newsletters <textarea id="pf-voice" rows="4"></textarea></label>
+        <div class="row"><button class="btn primary" id="pf-save">Save</button><span class="small" id="pf-status"></span></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-labelledby="dr-title" role="dialog">
+  <header>
+    <div><div class="label" id="dr-kicker"></div><h2 id="dr-title"></h2></div>
+    <button class="btn sm" id="dr-close">Close</button>
+  </header>
+  <div class="dbody" id="dr-body"></div>
+  <footer>
+    <div class="row"><button class="btn sm" id="dr-stop">Stop</button><button class="btn sm" id="dr-regen">Try again</button><button class="btn sm" id="dr-edit">Edit</button><button class="btn sm" id="dr-copy">Copy</button></div>
+    <button class="btn primary" id="dr-send">Send for approval</button>
+  </footer>
+</aside>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- Funding routes researched and checked 4 Nov 2026 ---------- */
+const FUNDS = [
+  // APPLY NOW
+  {id:"nlcf-a4a", lane:"apply", funder:"The National Lottery Community Fund", name:"Awards for All England", amount:"£300 – £20,000", deadline:null, when:"Open all year. Apply at least 16 weeks before you start.",
+   good:"Events and activities that bring people together and help people reach their potential.", who:"Not-for-profits (charity, CIC, constituted group) with at least 2 unrelated board members. It must be written by the organisation itself, not by consultants.",
+   view:"Best first bid. Good for a year of free founder-skills sessions outside central Bristol. Check our legal structure first.", src:"https://tnlcommunityfund.org.uk/funding/programmes/national-lottery-awards-for-all-england"},
+  {id:"smv-charity", lane:"apply", funder:"Society of Merchant Venturers Charity", name:"Community grants", amount:"£500 – £5,000", deadline:"2026-12-09T17:00", when:"Next deadline 9 December 2026, 5pm, for the January meeting. Panels meet four times a year.",
+   good:"Greater Bristol: education, youth, social enterprise and the area's economic development.", who:"Organisations, groups and individuals serving their communities, with priority for disadvantaged people. Apply by emailing the form.",
+   view:"Hidden gem. One of very few Bristol funders that names economic development. Small, quick and local. The deadline is a week after our meeting.", src:"https://www.merchantventurers.com/our-impact/charitable-giving/"},
+  {id:"quartet-express", lane:"apply", funder:"Quartet Community Foundation", name:"Express Grant Programme", amount:"Up to £5,000 (typical £4,000)", deadline:null, when:"Open all year. Decision in 8–10 weeks.",
+   good:"Small groups working with people facing inequality or economic hardship in Bristol, B&NES, North Somerset and South Gloucestershire.", who:"Constituted groups, charities and not-for-profits. CICs qualify only if they are not limited by shares and most directors are unpaid. Priority for income under £1m.",
+   view:"Pitch free enterprise and AI sessions for people facing economic hardship, e.g. jobseekers starting a business. About half of applications succeed.", src:"https://quartetcf.org.uk/grants/express-grant-programme/"},
+  {id:"access-foundation", lane:"apply", funder:"The Access Foundation", name:"Digital divide grants", amount:"£20,000 – £50,000 (up to 1 year)", deadline:null, when:"Open all year. Decision within about 16 weeks.",
+   good:"People left behind, or at risk of being left behind, as society goes digital.", who:"UK charities and not-for-profit organisations.",
+   view:"Hidden gem. Frame it as practical AI skills for those most at risk of being left behind, such as older business owners, women returning to work and micro-businesses in deprived areas.", src:"https://www.actiontogether.org.uk/access-foundation-digital-divide-grants"},
+  {id:"wcit-it4good", lane:"apply", funder:"Worshipful Company of Information Technologists (WCIT)", name:"IT4Good grants", amount:"Up to £15,000", deadline:null, when:"Panels meet quarterly. The last published deadline was 14 August 2026; confirm the next one.",
+   good:"New IT projects for education, digital inclusion and public understanding of technology.", who:"Charities and not-for-profits (including some CICs) with income and reserves under £1m and published accounts. At least 25 people reached, up to £300 per person.",
+   view:"A tech-world funder that understands what we do. Under 3% succeed, so pitch something new, not running costs.", src:"https://youngcamdenfoundation.org.uk/funding/wcit-charity-it-grants"},
+  {id:"ufi-activate", lane:"apply", funder:"Ufi VocTech Trust", name:"VocTech Activate", amount:"£30,000 – £60,000", deadline:"2027-01-25T17:00", when:"Opens 5 January 2027. Stage 1 closes 25 January 2027, 5pm.",
+   good:"Technology that helps adults learn job skills (Level 3 or below), with a clear route into work.", who:"Charities, CICs, employers and training providers that already reach adult learners. General digital-skills courses are not funded.",
+   view:"A stretch, but possible: an AI-assisted tool that teaches small-business staff to use automation, built with employer partners.", src:"https://ufi.co.uk/grant-funding/voctech-activate/"},
+  {id:"nlcf-reaching", lane:"apply", funder:"The National Lottery Community Fund", name:"Reaching Communities England", amount:"£20,001 and up, for up to 5 years", deadline:null, when:"Open all year. Decision in about 16 weeks.",
+   good:"Bigger, longer projects that bring people together and help them reach their potential.", who:"Voluntary and community organisations.",
+   view:"The step up after a first Awards for All grant. Could fund a part-time coordinator for 3 years.", src:"https://tnlcommunityfund.org.uk/funding/programmes/reaching-communities-england"},
+  // TEAM UP
+  {id:"henry-smith-egf", lane:"partner", funder:"Henry Smith Foundation", name:"Enterprise Gateway Fund", amount:"£500k – £1.5m per lead partner", deadline:"2026-11-25T17:00", when:"Expression of interest closes 25 November 2026, 5pm. Full application by 22 January 2027.",
+   good:"Enterprise support, peer learning and networks that help small community organisations and social entrepreneurs earn income.", who:"Lead partners need £500k+ income and experience of giving grants on to others.",
+   view:"Too big for us to lead. Offer ourselves to a regional enterprise body as the founder-skills and network partner, and do it this month.", src:"https://www.actiontogether.org.uk/henry-smith-foundation-enterprise-gateway-fund"},
+  {id:"weca-bootcamps", lane:"partner", funder:"West of England Combined Authority", name:"Skills Bootcamps (provider route)", amount:"Funded per learner by the DfE", deadline:null, when:"Expression-of-interest form open; calls come in waves.",
+   good:"Free courses of up to 16 weeks for adults aged 19+, designed with employers. Digital is a focus sector.", who:"Training providers that co-design courses with employers.",
+   view:"Hidden route. Team up with UWE or a training provider on an \"AI for small business\" bootcamp, with TWEA as the employer and founder network.", src:"https://www.westofengland-ca.gov.uk/what-we-do/employment-skills/skills-bootcamps/providers-and-employers/"},
+  // TELL OUR FOUNDERS
+  {id:"unltd", lane:"signpost", funder:"UnLtd", name:"Awards for Social Entrepreneurs", amount:"£500 – £18,000 + support", deadline:"2026-11-30T10:00", when:"Next closing date 30 November 2026, 10am.",
+   good:"Social entrepreneurs whose ventures are 1–5 years old and ready to grow. Half of awards are for Black, Asian and minority ethnic and/or disabled founders.", who:"Individuals aged 16+, turnover under £250k, working full time on the venture.",
+   view:"Share with our social-impact founders this week.", src:"https://www.bathnes.gov.uk/funding-finder/unltd-awards-social-entrepreneurs"},
+  {id:"weca-tafg", lane:"signpost", funder:"West of England Combined Authority · Business West · techSPARK", name:"Tech Adoption for Growth", amount:"£1m regional programme", deadline:null, when:"Ongoing. Check the current intake with Business West.",
+   good:"Helping small firms adopt technology to grow.", who:"SMEs in the West of England and Wiltshire.",
+   view:"Ideal for the newsletter's funding section.", src:"https://www.westofengland-ca.gov.uk/news/backing-business-innovation-across-the-west/"},
+  {id:"made-smarter-sw", lane:"signpost", funder:"Department for Business and Trade · West of England CA", name:"Made Smarter South West", amount:"Up to £20,000 (match funded)", deadline:null, when:"Runs 2026/27 to 2028/29.",
+   good:"Digital tools, hardware and software for manufacturers, plus funded internships with UWE.", who:"Manufacturers with fewer than 250 staff.",
+   view:"Share with hardware and manufacturing founders.", src:"https://www.westofengland-ca.gov.uk/news/backing-business-innovation-across-the-west/"},
+  {id:"swif", lane:"signpost", funder:"British Business Bank", name:"South West Investment Fund", amount:"Loans £25k – £2m · Equity up to £5m", deadline:null, when:"Open. £200m fund, more than £150m invested so far.",
+   good:"Smaller businesses at every stage, including under-represented and female founders.", who:"Businesses across the South West, including Bristol, Somerset and Wiltshire.",
+   view:"Investment, not a grant. Good for founders preparing to raise money. We could invite the fund managers to an event.", src:"https://www.british-business-bank.co.uk/news-and-events/news/south-west-investment-fund-passes-ps150m-milestone-after-backing-280-businesses"},
+  {id:"iuk-gbip", lane:"signpost", funder:"Innovate UK Business Growth", name:"Global Business Innovation Programme", amount:"Flights and hotels paid · £1,000 refundable deposit", deadline:null, when:"Missions open through the year. Check current ones.",
+   good:"A week-long trip abroad for innovative SMEs, focused on one market and sector, with expert support.", who:"UK SMEs with global ambitions. Selection is competitive.",
+   view:"Fits our international work, such as the Hong Kong missions. Share it with founders who are export-ready.", src:"https://iuk-business-connect.org.uk/programme/global-business-innovation/"},
+  {id:"uk-tradeshow", lane:"signpost", funder:"Department for Business and Trade", name:"UK Tradeshow Programme", amount:"Varies by show", deadline:null, when:"By show. Apply through approved organisers.",
+   good:"Grants and training towards exhibiting at approved overseas trade shows.", who:"UK businesses that export or plan to.",
+   view:"Pairs well with TWEA trade missions.", src:"https://fundingatlas.co.uk/grants/uk-tradeshow-programme"},
+  {id:"swef-young", lane:"signpost", funder:"South West Enterprise Fund (with WECA and Wiltshire Community Foundation)", name:"Business grant for 18–30s", amount:"Up to £2,000", deadline:null, when:"Open all year (check it is still running).",
+   good:"Start-up and early running costs for young founders who struggle to get finance.", who:"Aged 18–30, starting up or trading for up to 2 years.",
+   view:"Share with young founders and student start-ups.", src:"https://www.westofengland-ca.gov.uk/what-we-do/innovation/creative-and-cultural/culture-west/funding/"},
+  // COMING LATER
+  {id:"raeng-ingenious", lane:"watch", funder:"Royal Academy of Engineering", name:"Ingenious public engagement grants", amount:"£3,000 – £30,000", deadline:null, opens:"2027-07-01", when:"Closed now. The next round opens July 2027.",
+   good:"Creative projects bringing engineers and the public together, especially audiences under-represented in engineering.", who:"UK organisations, including SMEs and community groups, not just universities.",
+   view:"Hidden fit: \"Meet the people building AI in the West\" events in deprived areas, with our engineers trained to engage the public.", src:"https://raeng.org.uk/ingenious"},
+  {id:"cg-lcsf", lane:"watch", funder:"City & Guilds Foundation", name:"Local Community Skills Fund", amount:"Up to £10,000 (typical £6,000)", deadline:null, opens:"2027-04-01", when:"Opens each spring. Expressions of interest are closed now.",
+   good:"Community-led projects that close local skills gaps and help disadvantaged people into work.", who:"Charities and asset-locked social enterprises with income under £1m.",
+   view:"Diary for spring 2027. Sign up to their newsletter now.", src:"https://cityandguildsfoundation.org/what-we-offer/funding/community-skills-fund/"},
+  {id:"nominet-givehub", lane:"watch", funder:"Nominet", name:"Members' GiveHub", amount:"Up to £10,000 a year", deadline:null, when:"A member must nominate us. A panel meets monthly. The last yearly deadline was 13 March 2026.",
+   good:"Tech projects that make life more connected, inclusive and secure.", who:"UK organisations nominated by a Nominet member of 12+ months (often web and IT firms).",
+   view:"Hidden route: ask the web agencies and IT firms in our network whether one is a Nominet member and would nominate TWEA.", src:"https://nominet.uk/members-givehub"},
+  {id:"different-ai4all", lane:"watch", funder:"The Different Foundation", name:"AI for All", amount:"Up to £2,500 + AI mentoring", deadline:null, when:"The 2026 round closed 31 August 2026. Watch for 2027.",
+   good:"Diversity, equality and inclusion in AI.", who:"UK charities with turnover of £150k–£1.15m and 1–10 staff.",
+   view:"Only if TWEA becomes a charity of that size. Its theme fits us perfectly.", src:"https://www2.fundsforngos.org/?p=471279"},
+  {id:"dsit-techlocal", lane:"watch", funder:"DSIT · Innovate UK (TechFirst)", name:"TechLocal", amount:"£100,000 – £225,000 per project", deadline:null, when:"The 2026 round closed 18 March 2026. Watch for the next one.",
+   good:"Connecting local people to entry-level tech jobs and helping SMEs adopt AI. The South West is eligible.", who:"Partnerships of businesses, universities, charities and not-for-profits.",
+   view:"A strong partnership bid next time: TWEA (employers and founders) with UWE or a college (training).", src:"https://apply-for-innovation-funding.service.gov.uk/competition/2378/overview/ae120ce2-7b72-4cf2-8dde-f78b02d5996d"},
+  {id:"iuk-wii", lane:"watch", funder:"Innovate UK", name:"Women in Innovation Awards", amount:"Up to £75,000 + 12 months of support", deadline:null, when:"The 2025/26 round closed 4 February 2026. The next round is not yet announced.",
+   good:"Women founders of late-stage start-ups in digital, advanced manufacturing or life sciences.", who:"Women founders of UK SMEs.",
+   view:"Tell our women founders to prepare now, and run a bid-writing session when it opens.", src:"https://opportunitydesk.org/2025/12/01/women-in-innovation-awards-2025-2026"},
+  {id:"btq-grants", lane:"watch", funder:"Quartet Community Foundation", name:"Bristol Temple Quarter grants", amount:"Up to £1,000 (smaller grants)", deadline:null, when:"Closed in January 2026. Watch for a new round.",
+   good:"Good Work For All, community wellbeing and sustainable places near the Temple Quarter regeneration area.", who:"Groups in Bristol, South Gloucestershire and B&NES with a clear link to Temple Quarter.",
+   view:"Fits if we run sessions near Temple Meads.", src:"https://quartetcf.org.uk/grants/bristol-temple-quarter-grant-programme-tier-2-smaller-grant/"},
+  // NOT FOR US
+  {id:"bc-gdeep", lane:"filtered", funder:"British Council", name:"Green & Digital Employability and Enterprise", amount:"£150,000", deadline:"2026-11-17T11:00", when:"Closes 17 November 2026.",
+   good:"A UK–South Africa pilot for student enterprise skills.", who:"UK universities or colleges only, as the lead.", view:"We can't lead it. A future role could be the industry voice for a university partner.", src:"https://opportunitydesk.org/2026/10/28/british-council-green-digital-employability-and-enterprise-programme-2027/"},
+  {id:"sse-dps", lane:"filtered", funder:"School for Social Entrepreneurs · DPS", name:"Social Commitment Programme: Scale", amount:"Up to £10,000", deadline:"2026-11-16T12:00", when:"Closes 16 November 2026.",
+   good:"Scaling homelessness projects.", who:"Charities and social enterprises with a tested model.", view:"The theme doesn't match ours.", src:"https://www.grantmatch.co.uk/grants/org-type/social-enterprise"},
+  {id:"iuk-mdi", lane:"filtered", funder:"Innovate UK", name:"MDI Innovation & Scale-up Hub", amount:"£3.8m – £4m", deadline:"2026-11-18T11:00", when:"Closes 18 November 2026.",
+   good:"A national manufacturing hub.", who:"Large consortia.", view:"Far too big. The winning hub may later want regional partners.", src:"https://www.grantmatch.co.uk/grants/org-type/social-enterprise"},
+  {id:"thomas-wall", lane:"filtered", funder:"Thomas Wall Trust", name:"Grants for registered charities", amount:"Up to £5,000", deadline:null, when:"The March 2027 round opens around 19 November 2026.",
+   good:"Communication skills for employment, leading to an accredited qualification.", who:"Charities registered for 3+ years with turnover of £25k–£500k.", view:"It needs a 3-year charity registration and accredited qualifications. Not us yet.", src:"https://www.thomaswalltrust.org.uk/grants-for-registered-charities/"},
+  {id:"dsit-flex-ai", lane:"filtered", funder:"DSIT", name:"Flexible AI Upskilling Fund (pilot)", amount:"Up to £10,000 per SME", deadline:null, when:"Pilot closed August 2024. No new round announced.",
+   good:"Half the cost of AI training for professional-services SMEs.", who:"SMEs only.", view:"Closed. If it returns, share it with founders.", src:"https://gov.uk/government/publications/flexible-ai-upskilling-fund/ai-upskilling-fund-application-guide"},
+  {id:"hpc-fund", lane:"filtered", funder:"Somerset Community Foundation", name:"Hinkley Point C Community Fund", amount:"£10,000+ a year, multi-year", deadline:null, when:"Quarterly deadlines. Currently closed.",
+   good:"Wellbeing in communities near Hinkley Point C (Bridgwater, Burnham-on-Sea).", who:"Local groups in the affected area.", view:"Only if we run a programme in the Bridgwater area.", src:"https://www.somersetcf.org.uk/grants-funding/details/hpc-community-fund-open-grants/"}
+];
+/* Where each UK route applies, what kind of money it is, who it's for, and its top amount in £ (0 = varies) */
+const META = {
+  "nlcf-a4a":["UK-wide","Grant","TWEA",20000], "smv-charity":["Bristol","Grant","TWEA",5000], "quartet-express":["West of England","Grant","TWEA",5000],
+  "access-foundation":["UK-wide","Grant","TWEA",50000], "wcit-it4good":["UK-wide","Grant","TWEA",15000], "ufi-activate":["UK-wide","Grant","TWEA",60000],
+  "nlcf-reaching":["UK-wide","Grant","TWEA",500000], "henry-smith-egf":["England","Grant","Partnership",1500000], "weca-bootcamps":["West of England","Programme","Partnership",0],
+  "unltd":["UK-wide","Grant","Founders",18000], "weca-tafg":["West of England","Programme","Founders",0], "made-smarter-sw":["South West","Grant","Founders",20000],
+  "swif":["South West","Investment","Founders",5000000], "iuk-gbip":["UK-wide","Programme","Founders",0], "uk-tradeshow":["UK-wide","Grant","Founders",0],
+  "swef-young":["South West","Grant","Founders",2000], "raeng-ingenious":["UK-wide","Grant","TWEA",30000], "cg-lcsf":["UK-wide","Grant","TWEA",10000],
+  "nominet-givehub":["UK-wide","Grant","TWEA",10000], "different-ai4all":["UK-wide","Grant","TWEA",2500], "dsit-techlocal":["UK-wide","Grant","Partnership",225000],
+  "iuk-wii":["UK-wide","Grant","Founders",75000], "btq-grants":["Bristol","Grant","TWEA",1000], "bc-gdeep":["UK-wide","Grant","Partnership",150000],
+  "sse-dps":["England","Grant","TWEA",10000], "iuk-mdi":["UK-wide","Grant","Partnership",4000000], "thomas-wall":["UK-wide","Grant","TWEA",5000],
+  "dsit-flex-ai":["UK-wide","Grant","Founders",10000], "hpc-fund":["Somerset","Grant","TWEA",30000]
+};
+FUNDS.forEach(o => { const m = META[o.id] || ["UK-wide","Grant","TWEA",0]; Object.assign(o, {cont:"EU", country:"United Kingdom", area:m[0], type:m[1], forWho:m[2], max:m[3], check:"site"}); });
+/* Beyond the UK, plus more UK funders. cont: EU Europe, NA North America, LA Latin America, AF Africa, ME Middle East, AS Asia, OC Oceania, GL worldwide.
+   check: "site" = confirmed on the funder's or a government page; "dir" = from a directory or news report, confirm before acting. */
+const INTL = [
+  // More UK
+  {id:"coop-lcf", lane:"watch", cont:"EU", country:"United Kingdom", area:"UK-wide", type:"Grant", forWho:"TWEA", max:5000, check:"site", funder:"Co-op", name:"Local Community Fund", amount:"£500+ (raised by Co-op members)", deadline:null, when:"The 2026–27 round closed 24 June 2026. It reopens each year.", good:"Opportunities for young people, wellbeing, community cohesion and sustainable futures.", who:"UK not-for-profits. Someone applying needs a Co-op membership number.", view:"Easy and local. Diary it for spring 2027 and ask a volunteer who's a Co-op member to apply.", src:"https://vcse.uk/news-article/2026-06-09/co-op-local-community-fund-opens-for-applications-share-of-35-million-available"},
+  {id:"postcode-ct", lane:"watch", cont:"EU", country:"United Kingdom", area:"UK-wide", type:"Grant", forWho:"TWEA", max:45000, check:"site", funder:"People's Postcode Lottery", name:"Postcode Community Trust", amount:"Unrestricted, paid over 3 years (Round 2: £819k across 19 groups)", deadline:null, when:"Short rounds several times a year. The last one opened 25 August 2026.", good:"Small community groups, with priority for incomes of £250k or less and marginalised groups.", who:"Groups with proper accounts, a safeguarding policy reviewed in the last year, and enough trustees or directors.", view:"Rounds open for only a week. Get the paperwork ready in advance.", src:"https://www.postcodecommunitytrust.org.uk/news/2026-round-2-overview"},
+  {id:"aws-imagine-uk", lane:"watch", cont:"EU", country:"United Kingdom", area:"UK-wide", type:"Grant", forWho:"TWEA", max:0, check:"dir", funder:"Amazon Web Services", name:"AWS Imagine Grant (UK)", amount:"Cash + AWS credits + training", deadline:null, when:"A UK edition ran in 2026. Watch for 2027.", good:"Charities using cloud and AI technology for their mission.", who:"UK registered charities and nonprofits (check the guidelines).", view:"Fits if TWEA's automation tools become a showcase project.", src:"https://aws.amazon.com/government-education/nonprofits/aws-imagine-grant-program/aws-imagine-grant-uk"},
+  {id:"garfield-weston", lane:"filtered", cont:"EU", country:"United Kingdom", area:"UK-wide", type:"Grant", forWho:"TWEA", max:100000, check:"dir", funder:"Garfield Weston Foundation", name:"Regular Grants", amount:"Up to £100,000", deadline:null, when:"Open all year.", good:"Core, project or capital costs across community, youth, education and more.", who:"UK registered charities and CIOs only.", view:"Only if TWEA registers as a charity. Then it becomes a top target.", src:"https://grantnest.uk/blog/grants-no-deadline-uk-charities-june-2026.html"},
+  {id:"esmee", lane:"filtered", cont:"EU", country:"United Kingdom", area:"UK-wide", type:"Grant", forWho:"TWEA", max:300000, check:"dir", funder:"Esmée Fairbairn Foundation", name:"Main grants", amount:"From £30,000, over 3–5 years", deadline:null, when:"Open all year.", good:"Environment, culture and social change.", who:"Established charities with turnover of £100k+.", view:"Not our theme or size yet.", src:"https://grantnest.uk/blog/grants-no-deadline-uk-charities-june-2026.html"},
+  {id:"phf-youth", lane:"filtered", cont:"EU", country:"United Kingdom", area:"UK-wide", type:"Grant", forWho:"TWEA", max:150000, check:"dir", funder:"Paul Hamlyn Foundation", name:"Youth Fund", amount:"Up to £150,000 over 3 years", deadline:null, when:"Open all year.", good:"Charitable work with young people aged 14–25.", who:"Charitable organisations working with young people.", view:"Only for a youth-founder programme run with a youth charity partner.", src:"https://grantnest.uk/blog/grants-no-deadline-uk-charities-june-2026.html"},
+  // Europe
+  {id:"eic-accelerator", lane:"signpost", cont:"EU", country:"European Union", area:"EU programme", type:"Grant", forWho:"Founders", max:2100000, check:"site", funder:"European Innovation Council", name:"EIC Accelerator (grant part)", amount:"Grants up to €2.5m", deadline:null, when:"Short proposals any time. Full-proposal cut-offs in 2026 were 4 Mar, 6 May, 8 Jul, 2 Sep and 4 Nov; 2027 dates to come.", good:"Breakthrough and deep-tech innovation close to market.", who:"UK SMEs, and people setting one up, can get the grant part. The equity part isn't open to the UK.", view:"For our most ambitious deep-tech founders. Run an info session with Innovate UK Business Connect.", src:"https://iuk-business-connect.org.uk/opportunities/european-innovation-council-pathfinder-transition-accelerator-2026/"},
+  {id:"eic-women", lane:"signpost", cont:"EU", country:"European Union", area:"EU programme", type:"Prize", forWho:"Founders", max:85000, check:"site", funder:"European Innovation Council", name:"European Prize for Women Innovators 2027", amount:"€100k / €70k / €50k (plus Rising Innovators under 35)", deadline:"2026-12-01T16:00", when:"Closes 1 December 2026, 5pm Brussels time.", good:"Women founders behind innovative companies.", who:"Women founders in the EU and Horizon Europe associated countries. The UK is associated, but check the rules.", view:"Closes the day before our meeting. Tell women founders now.", src:"https://eic.ec.europa.eu/news/2027-european-prize-women-innovators-apply-now-2026-09-02_en"},
+  {id:"erasmus-2027", lane:"watch", cont:"EU", country:"European Union", area:"EU programme", type:"Grant", forWho:"Partnership", max:0, opens:"2027-01-01", check:"site", funder:"European Commission", name:"Erasmus+ (UK rejoins in 2027)", amount:"Varies by action", deadline:null, when:"The UK is associated from 2027. Watch for the first calls.", good:"Learning exchanges and partnerships in adult education, youth and vocational training.", who:"From 2027, UK organisations on the same terms as EU ones.", view:"Big hidden opportunity: founder-skills exchanges with tech communities in Italy, Albania, Germany and beyond. Start finding partners now.", src:"https://erasmus-plus.ec.europa.eu/whats-new/news/european-union-and-united-kingdom-take-decisive-step-towards-erasmus-association-in-2027"},
+  {id:"eusic", lane:"watch", cont:"EU", country:"European Union", area:"EU programme", type:"Prize", forWho:"TWEA", max:42000, check:"dir", funder:"European Innovation Council", name:"European Social Innovation Competition", amount:"3 × €50,000 prizes", deadline:null, when:"Runs yearly on a new theme. Check the next edition.", good:"Social innovation tackling a Europe-wide challenge.", who:"EU and Horizon Europe associated countries (UK eligibility to be confirmed).", view:"Watch for a theme on skills or the digital economy.", src:"https://single-market-economy.ec.europa.eu/industry/strategy/innovation/social/competition_en"},
+  {id:"google-aiof-eu", lane:"partner", cont:"EU", country:"European Union", area:"Europe-wide", type:"Programme", forWho:"Partnership", max:0, check:"site", funder:"Google.org", name:"AI Opportunity Fund: Europe", amount:"Funds nonprofits to train workers in AI", deadline:null, when:"2026 programme under way.", good:"Training 50,000 workers in the UK and Europe in AI skills, delivered through nonprofits.", who:"Delivery is through Google.org's nonprofit partners. There's no open application.", view:"Contact the delivery partners and offer TWEA as the West of England host for free AI training.", src:"https://aiopportunityfund.withgoogle.com/"},
+  {id:"startup-ireland-ai", lane:"signpost", cont:"EU", country:"Ireland", area:"Ireland", type:"Accelerator", forWho:"Founders", max:0, check:"site", funder:"Enterprise Ireland", name:"Startup Ireland AI Accelerator", amount:"€1m+ in tech and cloud credits, 12 weeks, no equity", deadline:null, when:"Announced 13 October 2026. Check the intake.", good:"AI startups, including a trip to Paris.", who:"Startups. Eligibility for overseas founders isn't stated; a national hub welcomes overseas founders.", view:"For founders thinking about an Irish base.", src:"https://www.enterprise-ireland.com/en/news/enterprise-ireland-launches-startup-ireland"},
+  {id:"smart-start-italia", lane:"signpost", cont:"EU", country:"Italy", area:"Italy", type:"Investment", forWho:"Founders", max:0, check:"dir", funder:"Invitalia (Italian government)", name:"Smart&Start Italia", amount:"Zero-interest loans, with 30–40% that doesn't have to be repaid", deadline:null, when:"Open under the 2026 rules.", good:"Innovative startups.", who:"Innovative startups registered in Italy.", view:"For founders opening an Italian company. Good for our Italy links.", src:"https://www.incentivimpresa.it/finanziamento-smart-and-start-invitalia/"},
+  {id:"eit-jumpstarter", lane:"filtered", cont:"EU", country:"European Union", area:"EU programme", type:"Prize", forWho:"Founders", max:8500, check:"site", funder:"EIT (European Institute of Innovation & Technology)", name:"EIT Jumpstarter", amount:"Prizes of €2.5k–€10k + training", deadline:null, when:"2026 round closed. 2027 dates to come.", good:"Turning early ideas into businesses in health, food, energy and smart cities.", who:"Teams need a member with EU or listed associated-country citizenship (e.g. Albania). The UK isn't listed.", view:"Not for UK-only teams. A founder with an EU or Albanian passport could lead an entry.", src:"https://eitjumpstarter.eu/"},
+  // Asia
+  {id:"ksgc", lane:"watch", cont:"AS", country:"South Korea", area:"Korea", type:"Accelerator", forWho:"Founders", max:55000, check:"site", funder:"Korean government (KSGC)", name:"K-Startup Grand Challenge", amount:"₩100m prize pool for top teams + an accelerator in Korea", deadline:null, when:"The 2026 round closed 17 June 2026. It usually opens around May.", good:"Foreign-led startups setting up in Korea.", who:"Startups led by foreign founders.", view:"Great for founders aiming at Asia. Diary it for spring 2027.", src:"https://www.koreajoongangdaily.com/korea/k-startup-grand-challenge-opens-aims-to-boost-foreigner-led-student-ventures/12600680"},
+  {id:"cyberport-cip", lane:"signpost", cont:"AS", country:"Hong Kong", area:"Hong Kong", type:"Accelerator", forWho:"Founders", max:0, check:"dir", funder:"Cyberport", name:"Cyberport Incubation Programme", amount:"Financial help + incubation (amounts vary)", deadline:null, when:"Open.", good:"Digital-tech startups growing past the idea stage.", who:"Applied for through a Hong Kong company; overseas founders can set one up.", view:"A natural next step after a TWEA Hong Kong trade mission.", src:"https://www.captime.hk/blog/hong-kong-government-grants-for-tech-startups-in-2026including-marketing-funds-bud-fund-cyberport-hkstp-and-what-founder"},
+  {id:"hkstp-ideation", lane:"signpost", cont:"AS", country:"Hong Kong", area:"Hong Kong", type:"Grant", forWho:"Founders", max:0, check:"dir", funder:"Hong Kong Science & Technology Parks", name:"HKSTP Ideation Programme", amount:"Seed funding + support", deadline:null, when:"Open.", good:"Early-stage tech ideas.", who:"Founders with a clear innovation and team (check the rules).", view:"Share with founders on our Hong Kong missions.", src:"https://www.captime.hk/blog/hong-kong-government-grants-for-tech-startups-in-2026including-marketing-funds-bud-fund-cyberport-hkstp-and-what-founder"},
+  {id:"startmeuphk", lane:"partner", cont:"AS", country:"Hong Kong", area:"Hong Kong", type:"Programme", forWho:"Partnership", max:0, check:"dir", funder:"InvestHK", name:"StartmeupHK events (incl. AI Founder Sprint 2027)", amount:"Events and partner programmes", deadline:null, when:"Event dates on the StartmeupHK site.", good:"Bringing overseas founders into Hong Kong's startup scene.", who:"Founders and ecosystem partners.", view:"Use our Global Tech Advocates Hong Kong link to co-host a West of England session.", src:"https://www.startmeup.hk/"},
+  {id:"hk-bud", lane:"filtered", cont:"AS", country:"Hong Kong", area:"Hong Kong", type:"Grant", forWho:"Founders", max:0, check:"dir", funder:"Hong Kong government", name:"BUD Fund", amount:"Matched funding for branding and sales", deadline:null, when:"Open.", good:"Branding, upgrading and sales promotion.", who:"Non-listed Hong Kong companies with real operations in Hong Kong.", view:"Only for firms already registered and operating in Hong Kong.", src:"https://www.captime.hk/blog/hong-kong-government-grants-for-tech-startups-in-2026including-marketing-funds-bud-fund-cyberport-hkstp-and-what-founder"},
+  {id:"taiwan-campus", lane:"partner", cont:"AS", country:"Taiwan", area:"Taiwan", type:"Grant", forWho:"Partnership", max:240000, check:"site", funder:"Taiwan government (Startup Terrace)", name:"International Startup Campus programme", amount:"Up to NT$10m (about £240k)", deadline:null, when:"Ongoing.", good:"Accelerators and startup-support groups that base themselves at Startup Terrace.", who:"Domestic and international accelerators, mentoring, investment and talent organisations.", view:"Hidden route: TWEA, or a UK partner accelerator, as an international partner hub in Taiwan.", src:"https://www.roc-taiwan.org/nz_en/post/3705.html"},
+  {id:"tokyo-startup-visa", lane:"signpost", cont:"AS", country:"Japan", area:"Tokyo", type:"Programme", forWho:"Founders", max:0, check:"dir", funder:"Tokyo Metropolitan Government", name:"Tokyo Startup Visa", amount:"Time to set up in Tokyo, plus business support", deadline:null, when:"Open.", good:"Foreign founders setting up a business in Tokyo.", who:"Foreign entrepreneurs with an approved business plan.", view:"For founders exploring Japan.", src:"https://www.investtokyo.metro.tokyo.lg.jp/en/oursupports/bdc-tokyo/startupvisa.html"},
+  {id:"startup-sg", lane:"signpost", cont:"AS", country:"Singapore", area:"Singapore", type:"Grant", forWho:"Founders", max:0, check:"dir", funder:"Enterprise Singapore", name:"Startup SG schemes", amount:"Grants, co-investment and founder passes", deadline:null, when:"Open.", good:"Founding and growing tech startups in Singapore.", who:"Startups set up in Singapore (foreign founders through EntrePass).", view:"For founders aiming at Southeast Asia.", src:"https://swiftly.sg/blog/government-grants-funding-for-startups-in-singapore-2026"},
+  {id:"india-seed", lane:"filtered", cont:"AS", country:"India", area:"India", type:"Grant", forWho:"Founders", max:45000, check:"dir", funder:"Government of India", name:"Startup India Seed Fund", amount:"Up to ₹50 lakh", deadline:null, when:"Through incubators.", good:"Early-stage Indian startups.", who:"Government-recognised Indian startups only.", view:"Not for UK founders.", src:"https://enego.co.in/blogs/startup-india-seed-fund-2026-guide"},
+  // Middle East
+  {id:"hub71", lane:"signpost", cont:"ME", country:"United Arab Emirates", area:"Abu Dhabi", type:"Accelerator", forWho:"Founders", max:100000, check:"site", funder:"Hub71 (Abu Dhabi)", name:"Hub71 Access Programme", amount:"AED 250k cash (as a SAFE) + up to AED 250k in kind", deadline:null, when:"Cohorts through the year. Cohort 18 was picked in June 2026.", good:"Tech startups from pre-seed to Series A moving to Abu Dhabi.", who:"Global startups. Cohort 18 was entirely international.", view:"For founders aiming at the Gulf. Note: the cash is an investment, not a grant.", src:"https://www.hub71.com/latest-news/press-release/hub71-selects-27-startups-for-cohort-18-in-first-all-international-intake-after-record-2453-applications"},
+  {id:"qstp", lane:"signpost", cont:"ME", country:"Qatar", area:"Doha", type:"Accelerator", forWho:"Founders", max:0, check:"site", funder:"Qatar Science & Technology Park", name:"QSTP Incubation Programme", amount:"16-week programme + investor introductions", deadline:null, when:"The Fall 2026 cohort started 1 September 2026.", good:"Deep-tech startups.", who:"Local and international startups (27 international in Fall 2026).", view:"For deep-tech founders looking at the Gulf.", src:"https://qstp.qa/qstp-launches-revamped-incubation-program-with-fall-2026-cohort/"},
+  // Africa
+  {id:"africa-prize", lane:"partner", cont:"AF", country:"Sub-Saharan Africa", area:"Sub-Saharan Africa", type:"Prize", forWho:"Partnership", max:50000, check:"site", funder:"Royal Academy of Engineering", name:"Africa Prize for Engineering Innovation", amount:"£85k total (winner £50k)", deadline:null, when:"Cycle 13 closed 8 September 2026.", good:"Engineering innovators in sub-Saharan Africa.", who:"Innovators living in sub-Saharan Africa.", view:"We can't apply, but TWEA engineers could volunteer as mentors. It's run from London.", src:"https://raeng.org.uk/news/the-2027-africa-prize-for-engineering-innovation-calls-for-applications-across-sub-saharan-africa/"},
+  {id:"tef", lane:"filtered", cont:"AF", country:"Pan-African", area:"Africa", type:"Grant", forWho:"Founders", max:3800, check:"dir", funder:"Tony Elumelu Foundation", name:"TEF Entrepreneurship Programme", amount:"US$5,000 seed + training", deadline:null, when:"Yearly call.", good:"African entrepreneurs.", who:"Entrepreneurs living in Africa.", view:"Not for UK founders.", src:"https://www.tonyelumelufoundation.org/press-releases/apply-tef-entrepreneurship-programme-2026"},
+  // North America
+  {id:"claude-nonprofits", lane:"apply", cont:"NA", country:"United States", area:"Worldwide offer", type:"In-kind", forWho:"TWEA", max:0, check:"dir", funder:"Anthropic", name:"Claude for Nonprofits", amount:"Up to 75% off Claude Team and Enterprise plans", deadline:null, when:"Ongoing.", good:"Nonprofits using AI for their work.", who:"Nonprofits (check the criteria).", view:"Directly cuts the cost of running this tool for TWEA.", src:"https://www.nonprofitpro.com/article/claude-for-nonprofits-launches-with-sector-discounts-data-connectors-and-training"},
+  {id:"google-org-ic", lane:"watch", cont:"NA", country:"United States", area:"Worldwide", type:"Grant", forWho:"Partnership", max:2200000, check:"site", funder:"Google.org", name:"Impact Challenges (AI)", amount:"US$1m–3m + accelerator + cloud credits", deadline:null, when:"AI for Government Innovation closed 3 April 2026. New challenges are announced from time to time.", good:"Nonprofits using generative AI for public good, e.g. helping governments.", who:"Nonprofits, social enterprises and universities worldwide.", view:"Too big for us alone. A bid with a council or university could fit a future round.", src:"https://opportunitydesk.org/2026/02/25/google-org-impact-challenge-ai-for-government-innovation-2026/"},
+  {id:"mcgovern", lane:"watch", cont:"NA", country:"United States", area:"Worldwide", type:"Grant", forWho:"TWEA", max:550000, check:"site", funder:"Patrick J. McGovern Foundation", name:"AI for public purpose grants", amount:"Usually US$200k–750k", deadline:null, when:"Mostly by invitation. No open call listed.", good:"AI fluency, AI and the workforce, and data for public good. Grantees include UK organisations.", who:"Organisations worldwide.", view:"Build a relationship: share our AI-skills work with them.", src:"https://www.mcgovern.org/grants/"},
+  {id:"mozilla-dxai", lane:"watch", cont:"NA", country:"United States", area:"Worldwide", type:"Grant", forWho:"TWEA", max:37000, check:"dir", funder:"Mozilla Foundation", name:"Democracy x AI cohort", amount:"Up to US$50,000", deadline:null, when:"The 2026 cohort closed 16 March 2026.", good:"People building AI that strengthens democracy and civic life.", who:"Builders and organisations worldwide.", view:"Only if we build a civic tool. Watch for 2027.", src:"https://opportunitydesk.org/2026/02/20/mozilla-foundation-incubator-democracy-x-ai-cohort-2026/"},
+  {id:"echoing-green", lane:"signpost", cont:"NA", country:"United States", area:"Worldwide", type:"Fellowship", forWho:"Founders", max:0, check:"site", funder:"Echoing Green", name:"Echoing Green Fellowship 2027", amount:"Seed funding + fellowship", deadline:null, when:"Opened July 2026. Check the deadline.", good:"Early-stage social-impact founders.", who:"Founders from any region.", view:"Share with our social-impact founders.", src:"https://opportunitiesfeed.com/2026/07/24/echoing-green/"},
+  {id:"kauffman", lane:"filtered", cont:"NA", country:"United States", area:"USA", type:"Grant", forWho:"TWEA", max:0, check:"dir", funder:"Ewing Marion Kauffman Foundation", name:"Entrepreneurship grants", amount:"Research and project grants", deadline:null, when:"Set rounds.", good:"Entrepreneurship research and programmes.", who:"Mainly US organisations.", view:"Not for us, but their research is useful evidence for our bids.", src:"https://www.kauffman.org/currents/2026-project-research-grantees-announced/"},
+  {id:"canada-suv", lane:"filtered", cont:"NA", country:"Canada", area:"Canada", type:"Programme", forWho:"Founders", max:0, check:"dir", funder:"Government of Canada", name:"Start-Up Visa", amount:"Residence route for founders", deadline:null, when:"Paused, with a new pilot planned.", good:"Founders moving to Canada.", who:"Founders with a designated backer.", view:"Paused. Watch for the new pilot.", src:"https://nairametrics.com/2025/12/22/canada-halts-start-up-visa-program-plans-new-entrepreneur-pathways-in-2026"},
+  // Latin America
+  {id:"startup-chile", lane:"watch", cont:"LA", country:"Chile", area:"Chile", type:"Accelerator", forWho:"Founders", max:0, check:"site", funder:"Start-Up Chile (Corfo)", name:"Start-Up Chile BIG", amount:"Equity-free co-funding + a 2-year work visa", deadline:null, when:"BIG 12 closed 25 May 2026. Watch for the next call.", good:"Tech startups from anywhere, with tracks for early-stage, MVP and growth.", who:"Tech founders worldwide.", view:"One of the best-known equity-free programmes for founders looking at Latin America.", src:"https://www.diariosustentable.com/2026/05/start-up-chile-abre-convocatoria-global-para-su-generacion-big-12-hasta-75-millones-en-financiamiento-sin-ceder-acciones/"},
+  // Oceania
+  {id:"austrade-landing", lane:"partner", cont:"OC", country:"Australia", area:"Australia → UK", type:"Programme", forWho:"Partnership", max:0, check:"site", funder:"Austrade", name:"Landing Pads (UK)", amount:"Free programme for Australian scaleups coming to the UK", deadline:null, when:"UK bootcamps during 2026–27.", good:"Australian tech scaleups entering the UK.", who:"Australian scaleups. Partners host and connect them.", view:"Hidden partnership: offer Bristol as a soft landing for Australian scaleups. It brings new founders into the TWEA network.", src:"https://www.austrade.gov.au/en/news-and-analysis/news/landing-pads-maps-more-global-opportunities-for-australian-tech-in-2026-27"},
+  // Worldwide
+  {id:"mit-solve", lane:"watch", cont:"GL", country:"Worldwide", area:"Worldwide", type:"Prize", forWho:"Founders", max:150000, check:"site", funder:"MIT Solve", name:"Global Challenges", amount:"US$10k Solver Award + prizes up to US$200k", deadline:null, when:"The 2027 challenges closed 2 November 2026. The next cycle usually opens in spring.", good:"Tech-based social ventures in learning, economic prosperity, health and climate.", who:"Teams worldwide.", view:"Two days too late for 2027. Diary the economic-prosperity challenge for 2028.", src:"https://opportunitiesforyouth.org/2026/10/04/mit-solve-global-challenges-2027-open-with-over-usd-1-million-in-prize-funding-and-nine-months-of-support/"},
+  {id:"cartier", lane:"watch", cont:"GL", country:"Worldwide", area:"Worldwide", type:"Prize", forWho:"Founders", max:75000, check:"site", funder:"Cartier Women's Initiative", name:"Regional Awards", amount:"US$100k / 60k / 30k + fellowship", deadline:null, when:"The 2027 edition closed in June 2026. The next call is expected in spring 2027.", good:"Women-led impact businesses, with a Europe region.", who:"Women-led for-profits trading for 1–6 years, any country.", view:"Tell women founders to prepare for the next call.", src:"https://vc4a.com/cartier-womens-initiative/2027-call-for-applications/"},
+  {id:"itu-ai4good", lane:"signpost", cont:"GL", country:"Worldwide", area:"UN (Geneva)", type:"Prize", forWho:"Founders", max:15000, check:"site", funder:"ITU (United Nations)", name:"AI for Good Innovation Factory", amount:"US$20k Grand Finale prize + UN summit access", deadline:"2026-12-08T12:00", when:"Monthly online pitches, September 2026 to May 2027. A live session on 8 December 2026. Final on 24 June 2027.", good:"AI startups tackling global challenges.", who:"AI startups worldwide.", view:"Easy for our AI founders to enter. The monthly pitches are online.", src:"https://aiforgood.itu.int/about-us/innovation-factory/"},
+  {id:"cloud-credits", lane:"signpost", cont:"GL", country:"Worldwide", area:"Worldwide", type:"In-kind", forWho:"Founders", max:0, check:"dir", funder:"Microsoft · Google · AWS", name:"Startup cloud and AI credits", amount:"Free credits (amounts vary by programme)", deadline:null, when:"Ongoing.", good:"Cutting early cloud and AI bills.", who:"Early-stage startups.", view:"A simple guide for every new founder who joins TWEA.", src:"https://klymentiev.com/blog/microsoft-for-startups"}
+];
+FUNDS.push(...INTL);
+const CONTS = {EU:"Europe", NA:"North America", LA:"Latin America", AF:"Africa", ME:"Middle East", AS:"Asia", OC:"Oceania", GL:"Worldwide", AN:"Antarctica"};
+const CONT_AREA = {EU:"eu", NA:"na", LA:"la", AF:"af", ME:"me", AS:"as", OC:"oc", GL:"gl", AN:"an"};
+const TYPES = ["Grant","Prize","Accelerator","Investment","Programme","Fellowship","In-kind"];
+const WHO = {TWEA:"TWEA itself", Founders:"Our founders", Partnership:"A partnership"};
+const WHEN = {any:"Any time", fresh:"New this week", d30:"Closes within 30 days", d90:"Closes within 90 days", rolling:"No fixed deadline", later:"Opens later"};
+const LANES = {
+  apply:{label:"Apply now", desc:"TWEA could apply itself"},
+  partner:{label:"Team up", desc:"Too big to lead: join a partner"},
+  signpost:{label:"Tell our founders", desc:"Money for founders: share it"},
+  watch:{label:"Coming later", desc:"Closed now: diary the next round"},
+  filtered:{label:"Not for us", desc:"Checked and ruled out"}
+};
+const IDEAS = [
+  {id:"followup", t:"Event follow-up on autopilot", p:"After each event: a thank-you email, a feedback form, a request for photos and a prompt to log the story, all within 24 hours.", how:"Attendee list → drafted emails → approval → sent.", e:"Small", i:"High"},
+  {id:"deadlines", t:"Deadlines in everyone's calendar", p:"Every Apply now or Team up deadline goes into a shared calendar, with reminders 4 weeks and 1 week before and a named owner.", how:"Funding list → shared calendar.", e:"Small", i:"High"},
+  {id:"evidence", t:"Library of bid answers", p:"Keep the best answers about our mission, governance, impact and safeguarding, and reuse them in every bid.", how:"Approved bid sections are saved, and Claude reuses them.", e:"Medium", i:"High"},
+  {id:"impact", t:"Reports for sponsors", p:"A one-page summary for each sponsor every quarter: events, founders reached, results and photos.", how:"Stories and numbers → template → approval.", e:"Medium", i:"High"},
+  {id:"minutes", t:"Meeting notes into actions", p:"Steering-group notes become a list of actions with owners and dates, with a reminder on Fridays.", how:"Notes → Claude → task list.", e:"Small", i:"Medium"},
+  {id:"intake", t:"Founder sign-up and introductions", p:"A short form records what each founder needs (funding, hiring, AI, export) and suggests who to introduce them to.", how:"Form → Claude → suggested intros, sent by a person.", e:"Medium", i:"High"},
+  {id:"news", t:"Weekly local tech news", p:"A digest of West of England tech news, competitions and calls for speakers.", how:"Weekly scan → digest → feeds posts and the newsletter.", e:"Medium", i:"Medium"},
+  {id:"speakers", t:"Speaker and partner tracker", p:"Who we asked, who said yes, who we thanked. So relationships don't depend on one person's inbox.", how:"Simple shared table + drafted emails.", e:"Small", i:"Medium"},
+  {id:"analytics", t:"Monthly reach snapshot", p:"Followers, engagement, newsletter opens and event sign-ups on one page.", how:"Social and email tools → one page.", e:"Medium", i:"Medium"},
+  {id:"trade", t:"Trade mission packs", p:"Briefing packs for trips abroad such as Hong Kong: who is going, who to meet, the schedule.", how:"Delegate form → Claude briefing → approval.", e:"Medium", i:"Medium"}
+];
+const DEFAULT_PROFILE = `Tech-West England Advocates (TWEA) is the West of England group of the Global Tech Advocates (GTA) network, founded by Richard Lowe. It is a volunteer-led community that supports tech founders and scale-ups across the West of England, the South West and the West Midlands, and connects them with partners, investors and international markets.
+What we do: events and founder clinics; international trade missions (e.g. the UK Tech Mission to the Greater Bay Area, China, Nov 2026, and the New Horizons Health Tech Mission to Boston, Apr 2027, led by TWEA); sector ambassadors (e.g. Chris Born, HealthTech Ambassador); and a quarterly newsletter. Partners have included DSIT/the Department for Business and Trade, the University of the West of England, UK Tech Advocates and Tech London Advocates & Global Tech Advocates.
+2027 priorities (announced after the GTA Summit Istanbul 2026): stronger support for regional and UK scale-ups, and connecting more capital to ambitious founders, especially at Series A and beyond, through the GTA Innovation Funding Working Group.
+Founder skills we want to fund: pitching and investment readiness, practical AI and automation, international growth, and fair access for under-represented founders.
+Contact: contact@techwestenglandadvocates.co.uk
+Legal structure: [TO CONFIRM, e.g. CIC / unincorporated group / hosted by another body. This decides charity and Lottery eligibility.]
+Annual income: [TO CONFIRM]`;
+const DEFAULT_VOICE = `Warm, confident and practical. UK English. Celebrate founders by name, but only with their consent. Short sentences, and no hype words like "revolutionary". One clear call to action. 2–4 hashtags on LinkedIn, e.g. #BristolTech #WestOfEngland #TechWestEngland.`;
+const SUBMIT_CHECK = ["Governing document and legal structure confirmed", "Latest accounts, plus a bank statement from the last 3 months", "At least 2 unrelated board or committee members (Lottery)", "Safeguarding and equality policies", "Budget signed off by the treasurer", "A named person submits on the funder's own portal and makes the declarations", "Rewrite in our own words: some funders, like the Lottery, reject applications written by others"];
+
+/* ---------- Helpers ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate = d => d ? new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}) : "";
+const dayMon = d => new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const daysTo = d => Math.ceil((new Date(d) - new Date()) / 86400000);
+const quarterOf = d => { const x = new Date(d); return x.getFullYear() + "-Q" + (Math.floor(x.getMonth()/3)+1); };
+const QM = ["January to March","April to June","July to September","October to December"];
+const qLabel = q => { const [y,n] = q.split("-Q"); return `${QM[n-1]} ${y}`; };
+const qEnd = q => { const [y,n] = q.split("-Q").map(Number); return new Date(y, n*3, 0, 23, 59); };
+let toastT; function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3200); }
+function md(text){
+  const lines = String(text).split("\n"); let out = "", inList = false;
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\[([^\]\n]{2,90})\]/g,"<mark>[$1]</mark>");
+  for (const raw of lines){
+    const l = raw.trimEnd();
+    const li = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
+    if (li){ if(!inList){out+="<ul>";inList=true;} out+=`<li>${inline(li[1])}</li>`; continue; }
+    if (inList){ out+="</ul>"; inList=false; }
+    if (/^###?\s/.test(l)) out += `<h4>${inline(l.replace(/^#+\s/,""))}</h4>`;
+    else if (/^#\s/.test(l)) out += `<h3>${inline(l.slice(2))}</h3>`;
+    else if (l.trim()) out += `<p>${inline(l)}</p>`;
+  }
+  if (inList) out += "</ul>";
+  return out;
+}
+function gauge(score){
+  const s = Math.max(0, Math.min(100, Number(score)||0)), c = 2*Math.PI*22, col = s>=70?"var(--go)":s>=45?"var(--amber)":"var(--stop)";
+  return `<svg viewBox="0 0 56 56" role="img" aria-label="Fit ${s} out of 100"><circle cx="28" cy="28" r="22" fill="none" stroke="var(--line)" stroke-width="6"/><circle cx="28" cy="28" r="22" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c*s/100} ${c}" transform="rotate(-90 28 28)"/><text x="28" y="33.5" text-anchor="middle" font-family="Atkinson Hyperlegible, Verdana, sans-serif" font-size="16" font-weight="700" fill="var(--ink)">${s}</text></svg>`;
+}
+async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast("Copied"); } catch { toast("Copy was blocked here. Select the text and copy it yourself."); } }
+
+/* ---------- State + data (shared store when available, this browser otherwise) ---------- */
+const S = { stories:[], queue:[], opps:[], runs:[], scores:{}, profile:{text:DEFAULT_PROFILE, voice:DEFAULT_VOICE}, roadmap:{}, lane:"all", q:"", f:{cont:"", country:"", area:"", who:"", type:"", when:"any", hideOut:false, sort:"lane", layout:"cards"}, qFilter:"needs_review", loaded:false, profileFilled:false };
+let db = null, sample = null, user = null, uid = null, aiState = "checking";
+function lid(){ return "l" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function dbErr(e){ toast(e && e.code === "invalid_argument" ? "You can view this page but not change it." : e && e.code === "quota_exceeded" ? "Storage is full. Delete some old items first." : "Couldn't save. Please try again."); }
+async function addDoc(col, data){
+  if (db){ try { const r = await db.collection(col).add(data); return r.id; } catch(e){ dbErr(e); throw e; } }
+  const id = lid(); S[col].unshift({id, ...data}); renderAll(); return id;
+}
+async function updateDoc(col, id, patch){
+  if (db){ try { await db.doc(col + "/" + id).update(patch); } catch(e){ dbErr(e); } return; }
+  const it = S[col].find(x => x.id === id); if (it) Object.assign(it, patch); renderAll();
+}
+async function delDoc(col, id){
+  if (db){ try { await db.doc(col + "/" + id).delete(); } catch(e){ dbErr(e); } return; }
+  S[col] = S[col].filter(x => x.id !== id); renderAll();
+}
+async function setPath(path, data){
+  if (db){ try { await db.doc(path).set(data); } catch(e){ dbErr(e); } return; }
+  const [c, id] = path.split("/");
+  if (c === "scores") S.scores[id] = data;
+  if (path === "settings/profile") S.profile = data;
+  if (path === "settings/roadmap") S.roadmap = data.map || {};
+  renderAll();
+}
+function setDb(state, label){ $("#db-dot").className = "dot " + state; $("#db-label").textContent = label; }
+function subscribe(){
+  let first = 0;
+  const timer = setTimeout(() => { if (!S.loaded) setDb("off", "Saved items not reachable yet"); }, 10000);
+  const done = snap => { if (!snap.metadata.fromCache && ++first >= 6 && !S.loaded){ S.loaded = true; clearTimeout(timer); setDb("on", "Saved and shared"); } };
+  const fail = e => { clearTimeout(timer); setDb("off", "Saving is offline"); };
+  const docs = s => s.docs.map(d => ({id:d.id, ...d.data()}));
+  db.collection("stories").onSnapshot(s => { S.stories = docs(s); done(s); renderAll(); }, fail);
+  db.collection("queue").onSnapshot(s => { S.queue = docs(s); done(s); renderAll(); }, fail);
+  db.collection("runs").onSnapshot(s => { S.runs = docs(s); done(s); renderAll(); }, fail);
+  db.collection("opps").onSnapshot(s => { S.opps = docs(s); done(s); renderAll(); }, fail);
+  db.collection("scores").onSnapshot(s => { S.scores = Object.fromEntries(s.docs.map(d => [d.id, d.data()])); done(s); renderAll(); }, fail);
+  db.collection("settings").onSnapshot(s => {
+    for (const d of s.docs){ if (d.id === "profile") S.profile = {...S.profile, ...d.data()}; if (d.id === "roadmap") S.roadmap = d.data().map || {}; }
+    done(s); fillProfile(); renderAll();
+  }, fail);
+}
+
+/* ---------- Claude ---------- */
+function setAi(state){
+  aiState = state;
+  $("#ai-dot").className = "dot " + (state === "on" ? "on" : state === "off" ? "off" : "");
+  $("#ai-label").textContent = state === "on" ? "Claude is ready" : window.__repoMode ? "Live drafting is in the Claude version" : state === "off" ? "Claude is not available here" : "Checking Claude…";
+  document.querySelectorAll(".ai").forEach(b => { b.disabled = state !== "on"; b.title = state === "off" ? "Open this page in Claude, signed in, to use the writing features" : ""; });
+}
+function aiError(e){
+  const c = e && e.code;
+  if (["not_granted","sampling_disabled","not_declared","capability_disabled"].includes(c)){ setAi("off"); return "Claude isn't allowed on this page for you."; }
+  if (c === "rate_limited") return "Too many requests just now. Wait a minute and try again.";
+  if (c === "refused") return "Claude declined this one. Try different wording.";
+  if (c === "invalid_json") return "The reply couldn't be read. Try again.";
+  if (c === "prompt_too_large") return "That's too much text at once. Shorten it.";
+  if (c === "cancelled") return "Stopped.";
+  return "Something went wrong. Try again.";
+}
+const profileBlock = () => `TWEA PROFILE:\n${S.profile.text}\n\nBRAND VOICE:\n${S.profile.voice}`;
+const oppText = o => `Funder: ${o.funder}\nProgramme: ${o.name}\nAmount: ${o.amount}\nTiming: ${o.when||""}\nGood for: ${o.good||""}\nWho can apply: ${o.who||""}`;
+const storyText = s => `- ${fmtDate(s.date)} · ${s.type} · ${s.title}${s.example ? " (EXAMPLE ENTRY, not a real event)" : ""}\n  ${s.what}${s.people ? "\n  People/partners: " + s.people : ""}${s.numbers ? "\n  Numbers: " + s.numbers : ""}${s.consent ? "" : "\n  (No public consent: do not name people publicly)"}`;
+
+/* ---------- Drawer ---------- */
+const DR = { ctl:null, text:"", mode:"md", kind:"", title:"", source:"", run:null, posts:null, editing:false, tip:"" };
+function openDrawer(cfg){
+  Object.assign(DR, {text:"", posts:null, editing:false, tip:""}, cfg);
+  $("#dr-kicker").textContent = cfg.kicker; $("#dr-title").textContent = cfg.title;
+  $("#scrim").hidden = false; $("#drawer").hidden = false; $("#dr-close").focus();
+  runDrawer(false);
+}
+function closeDrawer(){ DR.ctl?.abort(); $("#scrim").hidden = true; $("#drawer").hidden = true; }
+function busy(b){ $("#dr-stop").disabled = !b; ["#dr-regen","#dr-edit","#dr-copy","#dr-send"].forEach(s => $(s).disabled = b); }
+const tipHtml = () => DR.tip ? `<p class="tip">${esc(DR.tip)}</p>` : "";
+async function runDrawer(fresh){
+  if (!sample) return;
+  DR.ctl?.abort(); DR.ctl = new AbortController(); DR.editing = false; $("#dr-edit").textContent = "Edit";
+  const body = $("#dr-body");
+  body.innerHTML = tipHtml() + `<div class="thinking"><i></i>Claude is writing a first draft…</div>`;
+  busy(true);
+  try { await DR.run(DR.ctl.signal, fresh); }
+  catch(e){
+    if (e && e.text && DR.mode === "md") DR.text = e.text;
+    if (e && e.code !== "cancelled") body.insertAdjacentHTML("afterbegin", `<p class="warn">${esc(aiError(e))}</p>`);
+    else if (!DR.text && !DR.posts) body.innerHTML = `<p class="small">Stopped.</p>`;
+  } finally { busy(false); }
+}
+function drawerText(){
+  if (DR.mode === "posts" && DR.posts) return ["linkedin","x","instagram"].map(k => `${({linkedin:"LinkedIn",x:"X",instagram:"Instagram"})[k]}:\n${$("#post-"+k)?.value ?? DR.posts[k]}`).join("\n\n") + (DR.posts.alt_text ? `\n\nPhoto description (alt text):\n${DR.posts.alt_text}` : "");
+  if (DR.editing) return $("#dr-editarea").value;
+  return DR.text;
+}
+const streamTo = text => { DR.text = text; $("#dr-body").innerHTML = tipHtml() + `<div class="md">${md(text)}</div>`; };
+
+function draftBid(o){
+  openDrawer({kicker:`Bid outline · ${o.funder}`, title:o.name, kind:"Bid outline", source:o.name, mode:"md", tip:"This is a starting outline. Words in [brackets] need facts from us. Before submitting, a TWEA person rewrites it in their own words.", run: async (signal, fresh) => {
+    const ev = S.stories.slice(0,8).map(storyText).join("\n") || "(No stories logged yet)";
+    const prompt = `You are helping Tech-West England Advocates (TWEA) prepare a funding bid. A TWEA person will review, rewrite and own the final text, so present this as an outline, not a finished application.\n\n${profileBlock()}\n\nFUNDING CALL:\n${oppText(o)}\nOur desk view: ${o.view||""}\n\nSTORY BANK (TWEA's logged activity, usable as evidence; entries marked EXAMPLE are placeholders and must not be cited as real):\n${ev}\n\nWrite a bid OUTLINE in plain UK English that a non-specialist can follow. Use these sections as "## " headings:\n## Should we apply? (a short eligibility checklist and a clear yes / no / maybe)\n## The project in brief (max 120 words)\n## Why it's needed (use real Story Bank items only)\n## What we'll do\n## What will change and how we'll show it\n## Budget lines (amounts as [£ to confirm])\n## Questions for the TWEA team before we submit\nRules: never invent figures, names, partners or results. Put every missing fact in square brackets like [number of founders helped in 2026]. Use "- " bullets. Keep it short.`;
+    await sample(prompt, {signal, cache: fresh ? false : undefined, onText: ({text}) => streamTo(text)});
+  }});
+}
+function makePosts(subject, isOpp){
+  const title = isOpp ? `Funding news: ${subject.name}` : subject.title;
+  openDrawer({kicker:"Social posts", title, kind:"Social posts", source:title, mode:"posts", run: async (signal, fresh) => {
+    const material = isOpp ? `Write posts telling West of England founders about this funding (TWEA is not the funder; tell founders to check eligibility on the funder's website):\n${oppText(subject)}\nLink: ${subject.src || ""}` : `Write posts about this TWEA story:\n${storyText(subject)}${subject.link ? "\nLink: " + subject.link : ""}`;
+    const prompt = `You write social media posts for Tech-West England Advocates (TWEA).\n\n${profileBlock()}\n\n${material}\n\nRules: use only the facts given; put missing facts in [square brackets]; if there's no public consent, don't name individuals. Reply with ONLY a JSON object: {"linkedin": string (120-200 words, line breaks allowed, 2-4 hashtags), "x": string (max 270 characters), "instagram": string (60-120 words, up to 6 hashtags), "alt_text": string (a photo description for accessibility), "best_time": string (one short suggestion of when to post)}`;
+    const p = await sample.json(prompt, {signal, modelTier:"quick", cache: fresh ? false : undefined});
+    DR.posts = {linkedin:String(p.linkedin||""), x:String(p.x||""), instagram:String(p.instagram||""), alt_text:String(p.alt_text||""), best_time:String(p.best_time||"")};
+    renderPosts();
+  }});
+}
+function renderPosts(){
+  const P = DR.posts, lim = {linkedin:3000, x:280, instagram:2200};
+  $("#dr-body").innerHTML = `<p class="tip">Edit straight in the boxes. Check names and numbers before sending for approval.</p>` + ["linkedin","x","instagram"].map(k => `
+    <div class="post"><label class="f" for="post-${k}">${({linkedin:"LinkedIn",x:"X (Twitter)",instagram:"Instagram"})[k]}</label>
+    <textarea id="post-${k}" rows="${k==="x"?3:7}">${esc(P[k])}</textarea><span class="cnt" id="cnt-${k}"></span></div>`).join("") +
+    (P.alt_text ? `<p class="small"><b>Photo description:</b> ${esc(P.alt_text)}</p>` : "") + (P.best_time ? `<p class="small"><b>When to post:</b> ${esc(P.best_time)}</p>` : "");
+  for (const k of ["linkedin","x","instagram"]){
+    const ta = $("#post-"+k), c = $("#cnt-"+k), upd = () => { c.textContent = `${ta.value.length} of ${lim[k]} characters`; c.classList.toggle("over", ta.value.length > lim[k]); };
+    ta.addEventListener("input", upd); upd();
+  }
+}
+function buildNewsletter(q){
+  const stories = S.stories.filter(s => quarterOf(s.date) === q);
+  const signs = allOpps().filter(o => o.lane === "signpost");
+  openDrawer({kicker:"Quarterly newsletter", title:`TWEA newsletter · ${qLabel(q)}`, kind:"Newsletter", source:qLabel(q), mode:"md", tip:"Words in [brackets] need filling in. Example stories are marked and must be swapped for real ones.", run: async (signal, fresh) => {
+    const prompt = `Draft the quarterly newsletter for Tech-West England Advocates (TWEA) for ${qLabel(q)}. The comms team will edit and approve it before sending.\n\n${profileBlock()}\n\nTHIS QUARTER'S STORIES:\n${stories.map(storyText).join("\n") || "(none logged)"}\n\nFUNDING FOR FOUNDERS TO MENTION:\n${signs.map(o => `- ${o.name} (${o.funder}): ${o.amount}. ${o.good} ${o.when} ${o.src}`).join("\n")}\n\nWrite in plain, warm UK English with these "## " sections:\n## Subject line ideas (3)\n## Preview line\n## Welcome (60-90 words, signed [Name, role])\n## What we did this quarter (a short paragraph per story; entries marked EXAMPLE must say [EXAMPLE – replace])\n## Founder in the spotlight (the strongest story with consent)\n## Funding for founders\n## Coming up ([event, date] placeholders)\n## Get involved (one call to action)\nNever invent facts, numbers or quotes. Missing facts go in [square brackets]. Respect consent notes.`;
+    await sample(prompt, {signal, cache: fresh ? false : undefined, onText: ({text}) => streamTo(text)});
+  }});
+}
+
+/* ---------- Rendering ---------- */
+function allOpps(){ return [...FUNDS, ...S.opps.map(o => ({...o, added:true}))]; }
+function dueChip(o){
+  if (o.opens) return `<span class="chip">Opens ${new Date(o.opens).toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</span>`;
+  if (!o.deadline) return `<span class="chip">No fixed deadline</span>`;
+  const d = daysTo(o.deadline);
+  if (d < 0) return `<span class="chip">Closed ${fmtDate(o.deadline)}</span>`;
+  return `<span class="chip ${d<=14?"urgent":d<=45?"soon":"ok"}">${d === 0 ? "Due today" : d === 1 ? "1 day left" : d + " days left"} · ${dayMon(o.deadline)}</span>`;
+}
+function upcoming(limitDays){ return allOpps().filter(o => o.lane !== "filtered" && o.deadline && daysTo(o.deadline) >= 0 && daysTo(o.deadline) <= limitDays).sort((a,b) => new Date(a.deadline) - new Date(b.deadline)); }
+function renderHome(){
+  const act = allOpps().filter(o => o.lane === "apply" || o.lane === "partner");
+  const up30 = upcoming(30), nq = quarterOf(new Date()), sq = S.stories.filter(s => quarterOf(s.date) === nq).length;
+  const rev = S.queue.filter(x => x.status === "needs_review").length;
+  $("#tiles").innerHTML = `
+    <a class="tile" href="#funding"><span class="v num">${act.length}</span><span class="l">Funds we could go for</span><span class="s">${act.filter(o=>o.lane==="apply").length} to apply for, ${act.filter(o=>o.lane==="partner").length} to team up on</span></a>
+    <a class="tile" href="#funding"><span class="v num">${up30.length}</span><span class="l">Deadlines in 30 days</span><span class="s">${up30[0] ? "Next: " + esc(up30[0].name) : "None"}</span></a>
+    <a class="tile" href="#stories"><span class="v num">${sq}</span><span class="l">Stories this quarter</span><span class="s">${qLabel(nq)}</span></a>
+    <a class="tile" href="#approve"><span class="v num">${rev}</span><span class="l">Drafts to approve</span><span class="s">${S.queue.filter(x=>x.status==="approved").length} approved so far</span></a>`;
+  $("#home-dates").innerHTML = upcoming(120).slice(0,5).map(o => `<div class="row c-${o.lane}" style="justify-content:space-between;gap:6px"><span class="chip-lane"><i></i>${LANES[o.lane].label}</span><span style="flex:1;min-width:140px;font-weight:700;font-size:15px">${esc(o.name)}</span>${dueChip(o)}</div>`).join("") || `<p class="small">No dated deadlines coming up.</p>`;
+  const all = allOpps();
+  $("#brief-n").textContent = all.length;
+  $("#n-funding").textContent = all.filter(o => o.lane !== "filtered").length;
+  $("#n-stories").textContent = S.stories.length || "";
+  const na = $("#n-approve"); na.textContent = rev || ""; na.className = "n" + (rev ? " hot" : "");
+}
+function inWindow(o, w){
+  if (w === "any") return true;
+  if (w === "fresh") return !!o.foundAt && (Date.now() - new Date(o.foundAt)) < 7*86400000;
+  if (w === "rolling") return !o.deadline && !o.opens && o.lane !== "watch";
+  if (w === "later") return !!o.opens || o.lane === "watch";
+  if (!o.deadline) return false;
+  const d = daysTo(o.deadline); return d >= 0 && d <= (w === "d30" ? 30 : 90);
+}
+function matches(o, skip){
+  const f = S.f, q = S.q.trim().toLowerCase();
+  if (skip !== "lane" && S.lane !== "all" && o.lane !== S.lane) return false;
+  if (skip !== "cont" && f.cont && o.cont !== f.cont) return false;
+  if (skip !== "country" && f.country && o.country !== f.country) return false;
+  if (skip !== "area" && f.area && o.area !== f.area) return false;
+  if (skip !== "who" && f.who && o.forWho !== f.who) return false;
+  if (skip !== "type" && f.type && o.type !== f.type) return false;
+  if (skip !== "when" && !inWindow(o, f.when)) return false;
+  if (f.hideOut && o.lane === "filtered" && S.lane !== "filtered") return false;
+  if (q && ![o.name,o.funder,o.good,o.who,o.view,o.country,o.area,o.type].join(" ").toLowerCase().includes(q)) return false;
+  return true;
+}
+const pinSvg = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1a3.5 3.5 0 0 0-3.5 3.5C2.5 7.3 6 11 6 11s3.5-3.7 3.5-6.5A3.5 3.5 0 0 0 6 1Zm0 4.8a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6Z" fill="currentColor"/></svg>`;
+const whereTxt = o => o.country === "United Kingdom" ? (o.area && o.area !== "UK-wide" ? `${o.area}, UK` : "UK-wide") : (o.area && o.area !== o.country ? `${o.country} · ${o.area}` : o.country);
+function renderFinder(){
+  const all = allOpps(), f = S.f;
+  const base = all.filter(o => matches(o, "cont"));
+  const max = Math.max(1, ...Object.keys(CONTS).map(c => base.filter(o => o.cont === c).length));
+  $("#worldmap").innerHTML = Object.keys(CONTS).map(c => {
+    const n = base.filter(o => o.cont === c).length;
+    if (c === "AN") return `<button type="button" class="cont empty0" style="grid-area:an" data-cont="AN" title="We looked: Antarctic funding is for polar science only. Nothing fits TWEA."><b>Antarctica</b><span class="small" style="flex:1">we looked, nothing fits (polar science only)</span><span class="cn num">0</span></button>`;
+    return `<button type="button" class="cont" style="grid-area:${CONT_AREA[c]}" data-cont="${c}" aria-pressed="${f.cont===c}"><b>${CONTS[c]}</b><span class="cn num">${n}</span><span class="bar" style="width:${Math.round(n/max*100)}%"></span></button>`;
+  }).join("");
+  // sub-places: countries in the chosen continent, then UK areas
+  let sub = "";
+  if (f.cont){
+    const inCont = all.filter(o => o.cont === f.cont && matches(o, "country"));
+    const countries = [...new Set(all.filter(o => o.cont === f.cont).map(o => o.country))].sort();
+    if (countries.length > 1) sub += countries.map(c => `<button type="button" data-country="${esc(c)}" aria-pressed="${f.country===c}">${esc(c)} <span class="num">${inCont.filter(o => o.country === c).length}</span></button>`).join("");
+  }
+  if (f.country === "United Kingdom"){
+    const order = ["Bristol","West of England","Somerset","South West","England","UK-wide"];
+    const ukAll = all.filter(o => o.country === "United Kingdom" && matches(o, "area"));
+    sub += `<span class="small" style="align-self:center;margin-left:4px">Within the UK:</span>` + order.filter(a => all.some(o => o.country === "United Kingdom" && o.area === a)).map(a => `<button type="button" data-area="${esc(a)}" aria-pressed="${f.area===a}">${esc(a)} <span class="num">${ukAll.filter(o => o.area === a).length}</span></button>`).join("");
+  }
+  $("#subplaces").innerHTML = sub || `<span class="small">Tip: pick Europe, then the United Kingdom, to see what's local to Bristol.</span>`;
+  const pill = (key, val, label, list) => { const n = all.filter(o => matches(o, key)).filter(o => key === "who" ? o.forWho === val : key === "type" ? o.type === val : inWindow(o, val)).length; return `<button type="button" data-f="${key}" data-v="${val}" aria-pressed="${(f[key]||"")===val}" ${n===0 && (f[key]||"")!==val ? "disabled" : ""}>${label} <span class="num">${n}</span></button>`; };
+  $("#f-who").innerHTML = `<button type="button" data-f="who" data-v="" aria-pressed="${!f.who}">Everyone</button>` + Object.keys(WHO).map(k => pill("who", k, WHO[k])).join("");
+  $("#f-type").innerHTML = `<button type="button" data-f="type" data-v="" aria-pressed="${!f.type}">All kinds</button>` + TYPES.map(t => pill("type", t, t)).join("");
+  $("#f-when").innerHTML = Object.keys(WHEN).map(k => k === "any" ? `<button type="button" data-f="when" data-v="any" aria-pressed="${f.when==="any"}">Any time</button>` : pill("when", k, WHEN[k])).join("");
+  const sel = $("#f-country"), countries = [...new Set(all.map(o => o.country))].sort((a,b) => a === "United Kingdom" ? -1 : b === "United Kingdom" ? 1 : a.localeCompare(b));
+  sel.innerHTML = `<option value="">All countries</option>` + countries.map(c => `<option value="${esc(c)}">${esc(c)} (${all.filter(o => o.country === c).length})</option>`).join("");
+  sel.value = f.country || "";
+  $("#f-hideout").checked = !!f.hideOut;
+  // active filter tags
+  const tags = [];
+  if (f.cont) tags.push(["cont", CONTS[f.cont]]); if (f.country) tags.push(["country", f.country]); if (f.area) tags.push(["area", f.area]);
+  if (f.who) tags.push(["who", WHO[f.who]]); if (f.type) tags.push(["type", f.type]); if (f.when !== "any") tags.push(["when", WHEN[f.when]]);
+  if (S.lane !== "all") tags.push(["lane", LANES[S.lane].label]); if (S.q.trim()) tags.push(["q", `"${S.q.trim()}"`]);
+  const shown = all.filter(o => matches(o)).length;
+  $("#activebar").innerHTML = `<b>Showing ${shown} of ${all.length}</b>` + tags.map(([k,l]) => `<span class="tag">${esc(l)} <button type="button" data-clear="${k}" aria-label="Remove ${esc(l)}">×</button></span>`).join("") + (tags.length ? `<button type="button" class="btn sm quiet" data-clear="all">Clear all</button>` : "");
+}
+function renderFunding(){
+  const all = allOpps();
+  $("#fund-total").textContent = all.length;
+  $("#fund-countries").textContent = new Set(all.map(o => o.country).filter(c => !/Worldwide|European Union|Pan-African|Sub-Saharan/.test(c))).size;
+  renderFinder();
+  const forLegend = all.filter(o => matches(o, "lane"));
+  $("#legend").innerHTML = Object.keys(LANES).map(k => `<button type="button" class="lg c-${k}" data-lane="${k}" aria-pressed="${S.lane===k}"><b><i></i>${LANES[k].label} <span class="num" style="color:var(--muted)">${forLegend.filter(o => o.lane === k).length}</span></b><span>${LANES[k].desc}</span></button>`).join("");
+  $("#calendar").innerHTML = upcoming(125).filter(o => matches(o, "when")).map(o => { const d = daysTo(o.deadline); return `<div class="ticket c-${o.lane}"><span class="d">${dayMon(o.deadline)}</span><span class="n">${esc(o.name)}</span><span class="left ${d<=14?"urgent":""}">${d === 0 ? "Today" : d + " days left"} · ${esc(o.country === "United Kingdom" ? "UK" : o.country)}</span></div>`; }).join("") || `<p class="small">No dated deadlines in the next four months for this selection.</p>`;
+  const order = {apply:0, partner:1, signpost:2, watch:3, filtered:4};
+  const due = o => o.deadline && daysTo(o.deadline) >= 0 ? new Date(o.deadline).getTime() : 9e15;
+  const list = all.filter(o => matches(o)).sort((a,b) =>
+    S.f.sort === "due" ? due(a) - due(b) || order[a.lane]-order[b.lane] :
+    S.f.sort === "big" ? (b.max||0) - (a.max||0) :
+    order[a.lane]-order[b.lane] || due(a) - due(b) || (b.max||0) - (a.max||0));
+  const host = u => { try { return new URL(u).hostname.replace(/^www\d?\./,""); } catch { return "source"; } };
+  const trust = o => o.check === "dir" ? `<span class="trust dir" title="Found in a funding directory or news report. Check the funder's own page before acting."><i></i>From a directory: confirm</span>` : `<span class="trust" title="Confirmed on the funder's or a government page on 4 Nov 2026"><i></i>Checked on source</span>`;
+  const isList = S.f.layout === "list";
+  $("#opps").hidden = isList; $("#opps-list").hidden = !isList;
+  document.querySelectorAll("[data-layout]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.layout === S.f.layout)));
+  if (isList){
+    $("#opps-list").innerHTML = list.length ? `<table class="ftable"><thead><tr><th>Funding</th><th>Where</th><th>Kind · for</th><th>How much</th><th>When</th><th></th></tr></thead><tbody>` + list.map(o => `<tr class="c-${o.lane}"><td><span class="chip-lane" style="margin-bottom:4px"><i></i>${LANES[o.lane]?.label||"New"}</span><div class="nm">${esc(o.name)}</div><div class="fd">${esc(o.funder)}</div></td><td>${esc(whereTxt(o))}</td><td>${esc(o.type||"")}<div class="fd">${esc(WHO[o.forWho]||"")}</div></td><td>${esc(o.amount)}</td><td>${dueChip(o)}<div class="fd" style="margin-top:4px">${esc(o.when||"")}</div></td><td>${o.src ? `<a href="${esc(o.src)}" target="_blank" rel="noopener">Source ↗</a>` : ""}</td></tr>`).join("") + `</tbody></table>` : `<div class="empty" style="margin:12px">Nothing matches. Remove a filter above.</div>`;
+  } else {
+    $("#opps").innerHTML = list.map(o => { const sc = S.scores[o.id]; return `
+    <article class="opp c-${o.lane}">
+      <div class="row" style="justify-content:space-between"><span class="chip-lane"><i></i>${LANES[o.lane]?.label || "New"}</span>${o.foundAt && (Date.now()-new Date(o.foundAt)) < 7*86400000 ? `<span class="newb">New this week</span>` : ""}${dueChip(o)}</div>
+      <div class="row" style="gap:6px"><span class="where">${pinSvg}${esc(whereTxt(o))}</span><span class="chip">${esc(o.type||"")}</span><span class="chip">For ${esc((WHO[o.forWho]||"").replace(/^A /,"a ").replace(/^Our/,"our"))}</span></div>
+      <div><div class="who">${esc(o.funder)}</div><h3>${esc(o.name)}</h3></div>
+      <dl class="facts"><dt>How much</dt><dd>${esc(o.amount)}</dd><dt>When</dt><dd style="font-weight:400">${esc(o.when||"")}</dd></dl>
+      <p style="font-size:15px">${esc(o.good||"")}</p>
+      <p class="view-us"><b>Our view:</b> ${esc(o.view||"")}</p>
+      <details class="more"><summary>Who can apply</summary><p>${esc(o.who||"")}</p></details>
+      ${sc ? `<div class="fit">${gauge(sc.score)}<div><div class="verdict">${esc(sc.verdict||"")}</div><ul>${(sc.reasons||[]).slice(0,3).map(r=>`<li>${esc(r)}</li>`).join("")}${(sc.risks||[]).slice(0,2).map(r=>`<li style="color:var(--stop)">${esc(r)}</li>`).join("")}</ul>${sc.next_step?`<p class="small" style="margin-top:4px"><b>Next:</b> ${esc(sc.next_step)}</p>`:""}</div></div>` : ""}
+      <div class="row" style="margin-top:auto">
+        ${o.lane !== "filtered" ? `<button class="btn sm ai" data-act="score" data-id="${esc(o.id)}">${sc ? "Check again" : "Check fit"}</button>` : ""}
+        ${o.lane === "apply" || o.lane === "partner" ? `<button class="btn sm primary ai" data-act="bid" data-id="${esc(o.id)}">Draft a bid</button>` : ""}
+        ${o.lane === "signpost" ? `<button class="btn sm primary ai" data-act="signpost" data-id="${esc(o.id)}">Draft a post for founders</button>` : ""}
+        ${o.added ? `<button class="btn sm quiet" data-act="del-opp" data-id="${esc(o.id)}">Remove</button>` : ""}
+      </div>
+      <div class="row" style="justify-content:space-between">${o.src ? `<a class="src" href="${esc(o.src)}" target="_blank" rel="noopener">Source: ${esc(host(o.src))} ↗</a>` : "<span></span>"}${o.addedBy === "scan" ? `<span class="trust ${o.check==="dir"?"dir":""}"><i></i>Found by the weekly scan · ${dayMon(o.foundAt||o.addedAt)}</span>` : o.added ? `<span class="trust dir"><i></i>Added by the team</span>` : trust(o)}</div>
+    </article>`; }).join("") || `<div class="empty">Nothing matches. Remove a filter above, or clear them all.</div>`;
+  }
+  setAi(aiState);
+}
+function renderStories(){
+  $("#stories-count").textContent = S.stories.length ? `${S.stories.length} stories, newest first` : "";
+  const list = [...S.stories].sort((a,b) => new Date(b.date) - new Date(a.date));
+  $("#stories").innerHTML = list.map(s => { const d = new Date(s.date); return `
+    <article class="story">
+      <div class="date"><b>${d.getDate()}</b>${d.toLocaleDateString("en-GB",{month:"short",year:"numeric"})}</div>
+      <div style="min-width:0">
+        <h3>${esc(s.title)}</h3>
+        <p>${esc(s.what)}</p>
+        <div class="meta"><span class="chip">${esc(s.type)}</span>${s.numbers?`<span class="chip">${esc(s.numbers)}</span>`:""}${s.people?`<span class="chip">${esc(s.people)}</span>`:""}${s.consent?`<span class="chip ok">OK to share publicly</span>`:`<span class="chip">Internal only</span>`}${s.example?`<span class="chip ex">Example: replace with a real story</span>`:""}${s.source?`<span class="chip ex">${esc(s.source)}: check the facts</span>`:""}${s.postsDrafted?`<span class="chip ok">Posts drafted</span>`:""}</div>
+        <div class="row acts"><button class="btn sm primary ai" data-act="posts" data-id="${esc(s.id)}">Draft posts</button><button class="btn sm" data-act="consent" data-id="${esc(s.id)}">${s.consent ? "Mark internal only" : "Mark OK to share"}</button>${s.link?`<a class="btn sm quiet" href="${esc(s.link)}" target="_blank" rel="noopener">Photos/link ↗</a>`:""}<button class="btn sm quiet" data-act="del-story" data-id="${esc(s.id)}">Delete</button></div>
+      </div>
+    </article>`; }).join("") || `<div class="empty">No stories yet. Start with what happened at the last TWEA event.</div>`;
+  setAi(aiState);
+}
+function renderNewsletter(){
+  const sel = $("#nl-quarter"), cur = sel.value;
+  const qs = new Set([quarterOf(new Date()), ...S.stories.map(s => quarterOf(s.date))]);
+  const sorted = [...qs].sort().reverse();
+  sel.innerHTML = sorted.map(q => `<option value="${q}">${qLabel(q)}</option>`).join("");
+  sel.value = sorted.includes(cur) ? cur : quarterOf(new Date());
+  const q = sel.value, st = S.stories.filter(s => quarterOf(s.date) === q);
+  const issues = S.queue.filter(x => x.kind === "Newsletter" && x.source === qLabel(q));
+  const drafted = issues.length > 0, approved = issues.some(x => x.status === "approved");
+  const left = Math.ceil((qEnd(q) - new Date()) / 86400000);
+  $("#nl-check").innerHTML = `
+    <li class="${st.length >= 3 ? "done" : ""}"><b>${st.length}</b>stories logged${st.length < 3 ? " (aim for 3 or more)" : ""}</li>
+    <li class="${drafted ? "done" : ""}"><b>${drafted ? "✓" : "–"}</b>draft built by Claude</li>
+    <li class="${approved ? "done" : ""}"><b>${approved ? "✓" : "–"}</b>approved by Giulio and comms</li>
+    <li><b class="num">${left > 0 ? left : 0}</b>${left > 0 ? "days until the quarter ends" : "quarter has ended: time to send"}</li>`;
+  $("#nl-stories").innerHTML = st.map(s => `<li>${esc(s.title)} <span class="small">· ${fmtDate(s.date)}${s.example?" · example":""}</span></li>`).join("") || `<li class="small">No stories logged for this quarter yet.</li>`;
+  $("#nl-signposts").innerHTML = allOpps().filter(o => o.lane === "signpost").map(o => `<li>${esc(o.name)} <span class="small">· ${esc(o.amount)}</span></li>`).join("");
+}
+const STATUSES = {needs_review:"Waiting", changes:"Sent back", approved:"Approved", rejected:"Not now"};
+const NEXT = {"Social posts":"Next: copy into the social media scheduler. In the next version approved posts go there automatically.", "Newsletter":"Next: paste into the email tool. In the next version it arrives there as a draft."};
+let names = {};
+async function resolveNames(){
+  if (!user) return; const ids = [...new Set(S.queue.flatMap(x => [x.by, x.reviewedBy]).filter(Boolean))].filter(id => !(id in names));
+  if (!ids.length) return; try { const ps = await user.profiles(ids); for (const id of ids) names[id] = ps[id]?.name || "Someone"; renderQueueOnly(); } catch {}
+}
+function renderQueue(){ renderQueueOnly(); resolveNames(); }
+function renderQueueOnly(){
+  const counts = {}; for (const k in STATUSES) counts[k] = S.queue.filter(x => x.status === k).length;
+  $("#q-filters").innerHTML = Object.keys(STATUSES).map(k => `<button type="button" data-q="${k}" aria-pressed="${S.qFilter===k}">${STATUSES[k]} <span class="num">${counts[k]}</span></button>`).join("");
+  const list = S.queue.filter(x => x.status === S.qFilter).sort((a,b) => (b.updatedAt||b.createdAt||"").localeCompare(a.updatedAt||a.createdAt||""));
+  $("#queue").innerHTML = list.map(x => { const rn = x.reviewedBy && names[x.reviewedBy]; return `
+    <article class="memo" data-id="${esc(x.id)}">
+      <span class="stamp ${x.status}">${STATUSES[x.status]}${x.reviewedAt && x.status !== "needs_review" ? `<small>${dayMon(x.reviewedAt)}${rn ? " · " + esc(rn) : ""}</small>` : ""}</span>
+      <dl class="mhead"><dt>MEMO</dt><dd>${esc(x.kind)}</dd><dt>RE</dt><dd>${esc(x.title)}</dd><dt>DATE</dt><dd>${fmtDate(x.createdAt)}${x.by && names[x.by] ? " · from " + esc(names[x.by]) : ""}${x.edited ? " · edited" : ""}${x.auto ? " · drafted automatically" : ""}</dd></dl>
+      <div class="mbody md" id="qb-${esc(x.id)}">${md(x.body)}</div>
+      ${x.note ? `<p class="warn"><b>Reviewer note:</b> ${esc(x.note)}</p>` : ""}
+      ${x.status === "approved" && x.kind === "Bid outline" ? `<div class="subcheck"><b>Before anyone submits:</b><ul>${SUBMIT_CHECK.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>` : ""}
+      ${x.status === "approved" && NEXT[x.kind] ? `<div class="subcheck">${esc(NEXT[x.kind])}</div>` : ""}
+      <div class="stampbar">
+        ${x.status !== "approved" ? `<button class="sbtn approve" data-q-act="approve">Approved</button>` : ""}
+        ${x.status !== "changes" ? `<button class="sbtn changes" data-q-act="changes">Send back</button>` : ""}
+        ${x.status !== "rejected" ? `<button class="sbtn reject" data-q-act="reject">Not now</button>` : ""}
+        <span style="flex:1"></span>
+        <button class="btn sm" data-q-act="edit">Edit</button>
+        <button class="btn sm quiet" data-q-act="expand">Read all</button>
+        <button class="btn sm quiet" data-q-act="copy">Copy</button>
+      </div>
+      <div class="row" data-note-row hidden><input type="text" placeholder="What should change? (optional)" data-note style="flex:1;min-width:180px" aria-label="Reviewer note"><button class="btn sm primary" data-q-act="confirm">Stamp it</button></div>
+    </article>`; }).join("") || `<div class="empty">${S.qFilter === "needs_review" ? "Nothing waiting. Draft a bid, a post or the newsletter, and it lands here." : "Nothing here yet."}</div>`;
+}
+function renderIdeas(){
+  $("#ideas").innerHTML = IDEAS.map(i => { const v = S.roadmap[i.id]; return `
+    <article class="idea">
+      <div class="row"><span class="chip">Effort: ${i.e}</span><span class="chip ${i.i==="High"?"ok":""}">Impact: ${i.i}</span></div>
+      <h3>${esc(i.t)}</h3><p>${esc(i.p)}</p><p class="how">How: ${esc(i.how)}</p>
+      <div class="seg" role="group" aria-label="When to build ${esc(i.t)}">${["now","next","later"].map(k => `<button type="button" data-idea="${i.id}" data-pri="${k}" aria-pressed="${v===k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join("")}</div>
+    </article>`; }).join("");
+}
+function fillProfile(){
+  if (S.profileFilled && [$("#pf-text"), $("#pf-voice")].includes(document.activeElement)) return;
+  $("#pf-text").value = S.profile.text; $("#pf-voice").value = S.profile.voice; S.profileFilled = true;
+}
+function renderAll(){ renderAuto(); renderHome(); renderFunding(); renderStories(); renderNewsletter(); renderQueue(); renderIdeas(); }
+
+
+const AUTOS = [
+  {id:"scan", name:"Weekly funding scan", when:"Every Monday, 7:45am", icon:"£", steps:["Searches funders, governments, foundations, companies and directories on every continent", "Adds anything new to Find funding, with a colour, location, kind and \"Our view\"", "Drafts a bid outline for strong Apply now / Team up matches, ready for approval", "Puts new deadlines in Giulio's calendar and emails him a summary"]},
+  {id:"stories", name:"Weekly news gatherer and post drafter", when:"Every Thursday, 5:40pm", icon:"✎", steps:["Looks for TWEA news on the web from the past week (press, partner sites, Global Tech Advocates)", "Adds new items to the story log, marked internal-only until someone checks them", "Drafts LinkedIn, X and Instagram posts for every story that's OK to share", "Everything waits in Approve drafts"]},
+  {id:"nudge", name:"Quarter-end story reminder", when:"1 March, June, September and December", icon:"!", steps:["Emails Giulio a list of the quarter's stories so far", "Points out gaps (no founder spotlight, no numbers, no photos)", "Asks the team to log anything missing before the 20th"]},
+  {id:"newsletter", name:"Quarterly newsletter builder", when:"20 March, June, September and December", icon:"✉", steps:["Collects the quarter's stories and funding news for founders", "Drafts the full newsletter issue in TWEA's voice", "Sends it to Approve drafts for Giulio and the comms team", "Emails Giulio that it's ready for review"]}
+];
+function renderAuto(){
+  const last = id => S.runs.filter(r => r.task === id).sort((a,b) => (b.ranAt||"").localeCompare(a.ranAt||""))[0];
+  $("#autos").innerHTML = AUTOS.map(a => { const l = last(a.id); return `
+    <article class="auto">
+      <div class="clock"><svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="19" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="3"/><text x="22" y="29" text-anchor="middle" font-family="Zilla Slab, Georgia, serif" font-weight="700" font-size="19" fill="var(--blue)">${a.icon}</text></svg><div><h3>${a.name}</h3><div class="when">${a.when}</div></div></div>
+      <ol>${a.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
+      <div class="last">${l ? `Last run ${fmtDate(l.ranAt)}: ${esc(l.summary||"")}` : "Hasn't run yet. The first run's results will show here."}</div>
+    </article>`; }).join("");
+  const runs = [...S.runs].sort((a,b) => (b.ranAt||"").localeCompare(a.ranAt||"")).slice(0,8);
+  $("#runlog").innerHTML = runs.map(r => `<div class="run"><b>${fmtDate(r.ranAt)}</b><span><b>${esc((AUTOS.find(a => a.id === r.task)||{}).name || r.task)}</b><br>${esc(r.summary||"")}</span></div>`).join("") || `<p class="small">No runs yet. Each job writes a one-line summary here when it finishes.</p>`;
+  const fresh = allOpps().filter(o => o.foundAt && (Date.now()-new Date(o.foundAt)) < 7*86400000).length;
+  const n = $("#n-auto"); n.textContent = fresh ? fresh + " new" : ""; n.className = "n" + (fresh ? " hot" : "");
+}
+
+/* ---------- Pages ---------- */
+const VIEWS = ["home","funding","stories","newsletter","approve","auto","ideas","about"];
+function route(){
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "home";
+  document.querySelectorAll(".view").forEach(s => s.hidden = s.dataset.view !== v);
+  document.querySelectorAll(".nav a").forEach(a => { if (a.dataset.v === v) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  window.scrollTo(0,0);
+}
+addEventListener("hashchange", route);
+
+/* ---------- Actions ---------- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.lane){ S.lane = S.lane === b.dataset.lane ? "all" : b.dataset.lane; renderFunding(); return; }
+  if (b.dataset.cont){ if (b.dataset.cont === "AN"){ toast("We checked: Antarctic funding is only for polar science, so nothing fits TWEA."); return; } const c = b.dataset.cont; S.f.cont = S.f.cont === c ? "" : c; S.f.country = ""; S.f.area = ""; renderFunding(); return; }
+  if (b.dataset.country !== undefined && b.closest("#subplaces")){ const c = b.dataset.country; S.f.country = S.f.country === c ? "" : c; S.f.area = ""; renderFunding(); return; }
+  if (b.dataset.area !== undefined && b.closest("#subplaces")){ const a = b.dataset.area; S.f.area = S.f.area === a ? "" : a; renderFunding(); return; }
+  if (b.dataset.f){ const k = b.dataset.f, v = b.dataset.v; S.f[k] = k === "when" ? (S.f.when === v ? "any" : v) : (S.f[k] === v ? "" : v); renderFunding(); return; }
+  if (b.dataset.layout){ S.f.layout = b.dataset.layout; renderFunding(); return; }
+  if (b.dataset.clear){ const k = b.dataset.clear;
+    if (k === "all"){ Object.assign(S.f, {cont:"", country:"", area:"", who:"", type:"", when:"any"}); S.lane = "all"; S.q = ""; $("#opp-search").value = ""; }
+    else if (k === "lane") S.lane = "all"; else if (k === "q"){ S.q = ""; $("#opp-search").value = ""; } else if (k === "when") S.f.when = "any";
+    else { S.f[k] = ""; if (k === "cont"){ S.f.country = ""; S.f.area = ""; } if (k === "country") S.f.area = ""; }
+    renderFunding(); return; }
+  if (b.dataset.q){ S.qFilter = b.dataset.q; renderQueueOnly(); return; }
+  if (b.dataset.idea){ const map = {...S.roadmap}; map[b.dataset.idea] = map[b.dataset.idea] === b.dataset.pri ? null : b.dataset.pri; S.roadmap = map; renderIdeas(); await setPath("settings/roadmap", {map}); return; }
+  const act = b.dataset.act, id = b.dataset.id;
+  if (act === "score") await scoreOpps([allOpps().find(x => x.id === id)], b);
+  if (act === "bid") draftBid(allOpps().find(x => x.id === id));
+  if (act === "signpost") makePosts(allOpps().find(x => x.id === id), true);
+  if (act === "posts") makePosts(S.stories.find(x => x.id === id), false);
+  if (act === "consent"){ const s = S.stories.find(x => x.id === id); if (s) await updateDoc("stories", id, {consent: !s.consent}); }
+  if (act === "del-story" || act === "del-opp"){ if (b.dataset.armed) await delDoc(act === "del-story" ? "stories" : "opps", id); else { b.dataset.armed = "1"; b.textContent = "Click again to delete"; } }
+  if (b.dataset.qAct) await queueAction(b, b.dataset.qAct);
+});
+async function scoreOpps(list, btn){
+  if (!sample) return;
+  const old = btn.textContent; btn.disabled = true; btn.textContent = list.length > 1 ? "Checking all…" : "Checking…";
+  try {
+    const prompt = `Check how well each funding route fits Tech-West England Advocates (TWEA): as an applicant for "apply"/"partner"/"watch" routes, or as something to pass to its founders for "signpost" routes.\n\n${profileBlock()}\n\nROUTES:\n${list.map(o => `[id: ${o.id}] lane: ${o.lane}\n${oppText(o)}`).join("\n\n")}\n\nToday is ${new Date().toDateString()}. Treat unknown facts in the profile (in [brackets]) as eligibility risks. Use plain English. Reply with ONLY a JSON array, one object per route: {"id": string, "score": integer 0-100, "verdict": string (max 10 words), "reasons": [up to 2 short strings], "risks": [up to 2 short strings], "next_step": string (one concrete action)}`;
+    const res = await sample.json(prompt, {modelTier: list.length > 1 ? "default" : "quick", cache:false});
+    const arr = Array.isArray(res) ? res : [res]; let n = 0;
+    for (const r of arr){ if (!r || !r.id || !list.some(o => o.id === r.id)) continue; n++;
+      await setPath("scores/" + r.id, {score:Number(r.score)||0, verdict:String(r.verdict||""), reasons:(r.reasons||[]).map(String), risks:(r.risks||[]).map(String), next_step:String(r.next_step||""), checkedAt:new Date().toISOString()}); }
+    toast(n > 1 ? `Checked ${n} funding routes` : "Checked");
+  } catch(err){ toast(aiError(err)); }
+  finally { btn.textContent = old; btn.disabled = aiState !== "on"; renderFunding(); }
+}
+$("#score-all").addEventListener("click", e => { const l = allOpps().filter(o => matches(o) && o.lane !== "filtered" && (!o.deadline || daysTo(o.deadline) >= 0)).slice(0, 30); if (!l.length){ toast("Nothing to check in this selection"); return; } scoreOpps(l, e.currentTarget); });
+$("#opp-search").addEventListener("input", e => { S.q = e.target.value; renderFunding(); });
+$("#f-country").addEventListener("change", e => { const c = e.target.value; S.f.country = c; S.f.area = ""; const o = allOpps().find(x => x.country === c); S.f.cont = c && o ? o.cont : S.f.cont; renderFunding(); });
+$("#f-sort").addEventListener("change", e => { S.f.sort = e.target.value; renderFunding(); });
+$("#f-hideout").addEventListener("change", e => { S.f.hideOut = e.target.checked; renderFunding(); });
+$("#opp-extract").addEventListener("click", async e => {
+  const txt = $("#opp-paste").value.trim(), st = $("#opp-extract-status"), btn = e.currentTarget;
+  if (!txt){ st.textContent = "Paste the funding call text first."; return; }
+  btn.disabled = true; st.textContent = "Reading it…";
+  try {
+    const r = await sample.json(`Read this UK funding call and fill in the details for Tech-West England Advocates (TWEA).\n\n${profileBlock()}\n\nCALL TEXT:\n${txt.slice(0,12000)}\n\nLanes: "apply" (TWEA could apply itself), "partner" (TWEA should team up with a bigger lead), "signpost" (money for TWEA's founders, not TWEA), "watch" (closed now but will reopen), "filtered" (not relevant or not eligible). Use plain English. Reply with ONLY JSON: {"funder": string, "name": string, "amount": string, "deadline": "YYYY-MM-DDTHH:MM" or null, "when": string, "good": string (what it funds, max 25 words), "who": string (who can apply, max 30 words), "src": string URL or "", "lane": one of the lanes, "view": string (one sentence: what TWEA should do), "cont": one of "EU","NA","LA","AF","ME","AS","OC","GL" (where the programme applies; EU = Europe incl. UK, GL = worldwide), "country": string (e.g. "United Kingdom", "Worldwide"), "area": string (region within the country, e.g. "Bristol" or "UK-wide"), "type": one of "Grant","Prize","Accelerator","Investment","Programme","Fellowship","In-kind", "forWho": one of "TWEA","Founders","Partnership"}`, {modelTier:"quick"});
+    if (!r || !r.name) throw {code:"invalid_json"};
+    const lane = LANES[r.lane] ? r.lane : "apply";
+    await addDoc("opps", {funder:String(r.funder||"Unknown funder"), name:String(r.name), amount:String(r.amount||"Not stated"), deadline:r.deadline && !isNaN(new Date(r.deadline)) ? String(r.deadline) : null, when:String(r.when||""), good:String(r.good||""), who:String(r.who||""), src:/^https?:\/\//.test(r.src||"") ? r.src : "", lane, view:String(r.view||""), cont:CONTS[r.cont] && r.cont !== "AN" ? r.cont : "GL", country:String(r.country||"Worldwide"), area:String(r.area||""), type:TYPES.includes(r.type) ? r.type : "Grant", forWho:WHO[r.forWho] ? r.forWho : "TWEA", max:0, addedAt:new Date().toISOString()});
+    $("#opp-paste").value = ""; st.textContent = `Added "${r.name}" as ${LANES[lane].label}.`; S.lane = "all"; renderFunding();
+  } catch(err){ st.textContent = aiError(err); }
+  finally { btn.disabled = aiState !== "on"; }
+});
+$("#event-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const txt = $("#ev-text").value.trim(); if (!txt) return;
+  const first = txt.split(/(?<=[.!?])\s/)[0].slice(0,90);
+  const data = {title:first, date:new Date().toISOString().slice(0,10), type:"Event", what:txt, people:"", numbers:"", link:"", consent:$("#ev-consent").checked, createdAt:new Date().toISOString()};
+  if (uid) data.by = uid;
+  try { const id = await addDoc("stories", data); e.target.reset(); makePosts({id, ...data}, false); } catch {}
+});
+$("#paste-go").addEventListener("click", async e => {
+  const txt = $("#paste-text").value.trim(), st = $("#paste-status"), btn = e.currentTarget;
+  if (!txt){ st.textContent = "Paste an update first."; return; }
+  btn.disabled = true; st.textContent = "Reading it…";
+  try {
+    const r = await sample.json(`Turn this raw update (an email, chat message or notes) into one story entry for Tech-West England Advocates' story log. Use only facts in the text. Today is ${new Date().toISOString().slice(0,10)}.\n\nUPDATE:\n${txt.slice(0,12000)}\n\nReply with ONLY JSON: {"title": string (max 12 words), "date": "YYYY-MM-DD" (the date it happened; today if unclear), "type": one of "Event","Founder win","Partnership","Programme","Media & awards","International", "what": string (2-4 plain sentences), "people": string (names/organisations mentioned, or ""), "numbers": string (any figures, or "")}`, {modelTier:"quick"});
+    if (!r || !r.title) throw {code:"invalid_json"};
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(r.date||"") ? r.date : new Date().toISOString().slice(0,10);
+    await addDoc("stories", {title:String(r.title), date, type:String(r.type||"Event"), what:String(r.what||""), people:String(r.people||""), numbers:String(r.numbers||""), link:"", consent:false, createdAt:new Date().toISOString(), ...(uid ? {by:uid} : {})});
+    $("#paste-text").value = ""; st.textContent = `Saved "${r.title}". It's internal only until you mark it OK to share.`;
+  } catch(err){ st.textContent = aiError(err); }
+  finally { btn.disabled = aiState !== "on"; }
+});
+$("#story-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const data = {title:$("#st-title").value.trim(), date:$("#st-date").value, type:$("#st-type").value, what:$("#st-what").value.trim(), people:$("#st-people").value.trim(), numbers:$("#st-numbers").value.trim(), link:$("#st-link").value.trim(), consent:$("#st-consent").checked, createdAt:new Date().toISOString()};
+  if (!data.title || !data.date || !data.what) return;
+  if (uid) data.by = uid;
+  try { await addDoc("stories", data); e.target.reset(); $("#st-date").value = new Date().toISOString().slice(0,10); toast("Story saved"); } catch {}
+});
+$("#nl-quarter").addEventListener("change", renderNewsletter);
+$("#nl-build").addEventListener("click", () => buildNewsletter($("#nl-quarter").value));
+$("#pf-save").addEventListener("click", async () => { const p = {text:$("#pf-text").value, voice:$("#pf-voice").value}; S.profile = p; await setPath("settings/profile", p); $("#pf-status").textContent = "Saved. Claude uses this from the next draft."; });
+
+$("#dr-close").addEventListener("click", closeDrawer);
+$("#scrim").addEventListener("click", closeDrawer);
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("#drawer").hidden) closeDrawer(); });
+$("#dr-stop").addEventListener("click", () => DR.ctl?.abort());
+$("#dr-regen").addEventListener("click", () => runDrawer(true));
+$("#dr-copy").addEventListener("click", () => copyText(drawerText()));
+$("#dr-edit").addEventListener("click", () => {
+  if (DR.mode === "posts"){ toast("Edit the posts straight in their boxes"); return; }
+  if (!DR.editing){ DR.editing = true; $("#dr-body").innerHTML = `<label class="f" for="dr-editarea">Edit the draft</label><textarea class="edit" id="dr-editarea">${esc(DR.text)}</textarea>`; $("#dr-edit").textContent = "Preview"; }
+  else { DR.text = $("#dr-editarea").value; DR.editing = false; streamTo(DR.text); $("#dr-edit").textContent = "Edit"; }
+});
+$("#dr-send").addEventListener("click", async () => {
+  const body = drawerText().trim(); if (!body){ toast("Nothing to send yet"); return; }
+  const now = new Date().toISOString(), item = {kind:DR.kind, title:DR.title, source:DR.source, body, status:"needs_review", createdAt:now, updatedAt:now};
+  if (uid) item.by = uid;
+  try { await addDoc("queue", item); closeDrawer(); S.qFilter = "needs_review"; toast("Sent to Approve drafts"); } catch {}
+});
+async function queueAction(b, qa){
+  const card = b.closest(".memo"), id = card.dataset.id, x = S.queue.find(i => i.id === id); if (!x) return;
+  const now = new Date().toISOString(), rev = uid ? {reviewedBy:uid} : {};
+  if (qa === "approve"){ await updateDoc("queue", id, {status:"approved", note:"", reviewedAt:now, updatedAt:now, ...rev}); toast("Stamped: Approved"); }
+  if (qa === "expand"){ $("#qb-"+id)?.classList.toggle("open"); b.textContent = b.textContent === "Read all" ? "Show less" : "Read all"; }
+  if (qa === "copy") copyText(x.body);
+  if (qa === "changes" || qa === "reject"){ const r = card.querySelector("[data-note-row]"); r.hidden = false; r.dataset.target = qa === "changes" ? "changes" : "rejected"; r.querySelector("input").focus(); }
+  if (qa === "confirm"){ const r = card.querySelector("[data-note-row]"); await updateDoc("queue", id, {status:r.dataset.target, note:r.querySelector("input").value.trim(), reviewedAt:now, updatedAt:now, ...rev}); toast(r.dataset.target === "changes" ? "Stamped: Sent back" : "Stamped: Not now"); }
+  if (qa === "edit"){
+    if (b.textContent === "Edit"){ $("#qb-"+id).outerHTML = `<textarea id="qe-${esc(id)}" aria-label="Edit the draft">${esc(x.body)}</textarea>`; b.textContent = "Save changes"; }
+    else { await updateDoc("queue", id, {body:$("#qe-"+id).value, updatedAt:now, edited:true}); toast("Changes saved"); renderQueueOnly(); }
+  }
+}
+
+
+/* GitHub version: when hosted from TWEA's repository (no Claude account), read the files the scheduled GitHub jobs write */
+async function loadRepoData(){
+  const get = async f => { try { const r = await fetch("data/" + f, {cache:"no-store"}); return r.ok ? await r.json() : null; } catch { return null; } };
+  const [o, st, q, r] = await Promise.all([get("opps.json"), get("stories.json"), get("queue.json"), get("runs.json")]);
+  if (!o && !st && !q && !r) return;
+  if (Array.isArray(o)) S.opps = o; if (Array.isArray(st)) S.stories = st; if (Array.isArray(q)) S.queue = q; if (Array.isArray(r)) S.runs = r;
+  window.__repoMode = true; setDb("on", "Loaded from TWEA's GitHub");
+  $("#ai-label").textContent = "Live drafting is in the Claude version";
+  renderAll();
+}
+
+/* ---------- Start ---------- */
+$("#st-date").value = new Date().toISOString().slice(0,10);
+fillProfile(); route(); renderAll(); setAi("checking");
+(async () => {
+  if (!window.claude || !window.claude.use){ setAi("off"); setDb("off", "Saved in this browser only"); loadRepoData(); return; }
+  const [s, d, u] = await Promise.all([claude.use("sample"), claude.use("db"), claude.use("user")]);
+  sample = s; setAi(s ? "on" : "off");
+  user = u; try { uid = u ? await u.id() : null; } catch { uid = null; }
+  if (d){ db = d; setDb("", "Loading saved items…"); subscribe(); } else { setDb("off", "Saved in this browser only"); loadRepoData(); }
+  renderAll();
+})();
+</script>
+</body></html>
