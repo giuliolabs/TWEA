@@ -1,0 +1,53 @@
+name: Weekly news gatherer and post drafter
+
+on:
+  schedule:
+    - cron: "40 17 * * 4"   # UTC
+  workflow_dispatch: {}   # lets a maintainer run it by hand from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: twea-news
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run the news job
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_MODEL: ${{ vars.CLAUDE_MODEL }}
+        run: python scripts/run_job.py news
+      - name: Read the summary
+        id: sum
+        run: echo "text=$(cat .last_summary 2>/dev/null || echo 'No summary')" >> "$GITHUB_OUTPUT"
+      - name: Open a pull request for review (this is the human approval step)
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/news
+          delete-branch: true
+          add-paths: |
+            data/**
+            drafts/**
+          commit-message: "Weekly news and post drafts – ${{ steps.sum.outputs.text }}"
+          title: "Weekly news and post drafts – please review"
+          body: |
+            **${{ steps.sum.outputs.text }}**
+
+            Written by the scheduled news job. Nothing goes live until a TWEA reviewer merges this pull request.
+
+            How to review:
+            1. Open **Files changed**. New funding is in `data/opps.json`, new stories are in `data/stories.json`, and drafts are in `drafts/`.
+            2. Edit or delete anything that's wrong (use the … menu on a file, then Edit file).
+            3. **Merge** to publish to the TWEA Flywheel site, or **Close** to throw it away.
+          labels: needs-review

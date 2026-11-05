@@ -1,0 +1,26 @@
+name: Quarter-end story reminder
+
+on:
+  schedule:
+    - cron: "12 9 1 3,6,9,12 *"   # UTC, 1 Mar/Jun/Sep/Dec
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the reminder (no AI needed)
+        run: python scripts/run_job.py reminder
+      - name: Open an issue for the team
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "Newsletter: stories due by the 20th" --body-file .issue_body.md
