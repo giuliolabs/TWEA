@@ -1,41 +1,44 @@
 [
   {
+    "id": "boston-healthtech-mission-2027",
     "consent": true,
     "createdAt": "2026-11-04T18:00:00Z",
     "date": "2026-11-03",
     "link": "https://lnkd.in/e9-dJZay",
     "numbers": "5 days · 26–30 April 2027 · max 2 delegates per company",
     "people": "Chris Born (HealthTech Ambassador, TWEA); supported by DSIT, Havas Lynx, Hardian Health, ABHI and shipshape.vc",
+    "postsDrafted": true,
     "source": "TWEA LinkedIn post",
     "title": "Registration opens: New Horizons Health Tech Mission to Boston",
     "type": "International",
-    "what": "TWEA is leading New Horizons, a five-day UK health tech mission to Boston (26–30 April 2027) with UK Tech Advocates and Tech London Advocates & Global Tech Advocates. Scaling health tech companies get pre-mission briefings on US regulation and market access, meetings with hospitals, payers and research centres, investor pitching and post-mission support. A free online briefing runs on 13 November at 3pm UK time, with a maximum of 2 delegates per company.",
-    "id": "boston-healthtech-mission-2027"
+    "what": "TWEA is leading New Horizons, a five-day UK health tech mission to Boston (26–30 April 2027) with UK Tech Advocates and Tech London Advocates & Global Tech Advocates. Scaling health tech companies get pre-mission briefings on US regulation and market access, meetings with hospitals, payers and research centres, investor pitching and post-mission support. A free online briefing runs on 13 November at 3pm UK time, with a maximum of 2 delegates per company."
   },
   {
+    "id": "gba-china-mission-2026",
     "consent": true,
     "createdAt": "2026-11-04T18:00:00Z",
     "date": "2026-10-08",
     "link": "https://lnkd.in/efnDfgMT",
     "numbers": "5 days · 3 cities · entry £2k + VAT",
     "people": "UK & Global Tech Advocates, Department for Business, Innovation, Science and Trade, University of the West of England, Hewlett Rand; past delegates from Haylo, Q5D, Kaiku and Quantum Science Ltd",
+    "postsDrafted": true,
     "source": "TWEA LinkedIn post",
     "title": "Final call: UK Tech Mission to the Greater Bay Area, China",
     "type": "International",
-    "what": "A week-long UK tech mission to Guangzhou, Shenzhen and Hong Kong (23–27 November 2026), delivered with UK & Global Tech Advocates, the Department for Business, Innovation, Science and Trade, the University of the West of England and other partners. UK scale-ups get access to prospects, supply-chain partners and investors, with visits to tech and innovation parks, company visits, roundtables and British consulate receptions. Past delegates reported finding a manufacturing partner and investor interest.",
-    "id": "gba-china-mission-2026"
+    "what": "A week-long UK tech mission to Guangzhou, Shenzhen and Hong Kong (23–27 November 2026), delivered with UK & Global Tech Advocates, the Department for Business, Innovation, Science and Trade, the University of the West of England and other partners. UK scale-ups get access to prospects, supply-chain partners and investors, with visits to tech and innovation parks, company visits, roundtables and British consulate receptions. Past delegates reported finding a manufacturing partner and investor interest."
   },
   {
+    "id": "gta-summit-istanbul-2026",
     "consent": true,
     "createdAt": "2026-11-04T18:00:00Z",
     "date": "2026-10-15",
     "link": "",
     "numbers": "",
     "people": "Richard Lowe (Founder, TWEA); Tech London Advocates & Global Tech Advocates; Tech Türkiye Advocates",
+    "postsDrafted": true,
     "source": "TWEA LinkedIn post",
     "title": "TWEA at the GTA Summit Istanbul 2026",
     "type": "International",
-    "what": "TWEA represented the West of England at the Global Tech Advocates Summit in Istanbul, hosted by Tech Türkiye Advocates, and presented its plans for more events and initiatives to support tech scale-ups across the West Midlands, West of England and South West. TWEA returned with two priorities: stronger support for regional and UK scale-ups, and connecting more capital to ambitious founders through the newly launched GTA Innovation Funding Working Group, especially at Series A and beyond.",
-    "id": "gta-summit-istanbul-2026"
+    "what": "TWEA represented the West of England at the Global Tech Advocates Summit in Istanbul, hosted by Tech Türkiye Advocates, and presented its plans for more events and initiatives to support tech scale-ups across the West Midlands, West of England and South West. TWEA returned with two priorities: stronger support for regional and UK scale-ups, and connecting more capital to ambitious founders through the newly launched GTA Innovation Funding Working Group, especially at Series A and beyond."
   }
 ]
