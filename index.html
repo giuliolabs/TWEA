@@ -261,6 +261,10 @@ details.full-form[open] > summary::before{content:"– "}
 .sbtn{font-family:var(--f-type);font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:3px double currentColor;background:transparent;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:14.5px}
 .sbtn.approve{color:var(--go)}.sbtn.changes{color:var(--amber)}.sbtn.reject{color:var(--stop)}
 .sbtn:hover{background:var(--sunk)}
+.appr{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14.5px;background:var(--sunk);border-radius:9px;padding:9px 12px}
+.appr .pip{width:12px;height:12px;border-radius:50%;border:2px solid var(--go);display:inline-block;vertical-align:-1px}
+.appr .pip.on{background:var(--go)}
+.redrafted{font-size:14px;color:var(--muted)}
 .subcheck{background:var(--go-soft);border-radius:9px;padding:12px 14px;font-size:14.5px}
 .subcheck ul{margin:6px 0 0;padding-left:20px}
 .filters{display:flex;flex-wrap:wrap;gap:6px}
@@ -631,7 +635,7 @@ details.full-form[open] > summary::before{content:"– "}
         <div>
           <div class="label">Human oversight</div>
           <h1>Approve drafts</h1>
-          <p>Every draft lands here as a memo. Read it and edit it if needed, then stamp it. Only Approved items move on, and a person still presses send.</p>
+          <p>Every draft lands here as a memo. Posts and newsletters need two approvals from two different people, Giulio and someone from the comms team. Bid outlines need one. Send a draft back with a note and Claude can redraft it. The tool never posts, sends or submits anything: a person does that.</p>
         </div>
       </div>
       <div class="ro-banner" data-ro hidden><b>Public view.</b> Editing and stamping drafts only work in the Claude version of this tool. Anything added or approved there appears here automatically at 9am, 1pm and 5pm. <a class="btn sm" href="https://claude.ai/artifact/7vBjLWJmoin3MimPh3gmCB" target="_blank" rel="noopener">Open the Claude version</a></div>
@@ -1366,10 +1370,14 @@ function renderNewsletter(){
   $("#nl-signposts").innerHTML = allOpps().filter(o => o.lane === "signpost").map(o => `<li>${esc(o.name)} <span class="small">· ${esc(o.amount)}</span></li>`).join("");
 }
 const STATUSES = {needs_review:"Waiting", changes:"Sent back", approved:"Approved", rejected:"Not now"};
+/* Richard's brief: posts and the newsletter are checked by Giulio and the comms team (two different people); bids need one person before a named person submits. */
+const NEEDS = {"Social posts":2, "Newsletter":2, "Bid outline":1};
+const needOf = x => NEEDS[x.kind] || 1;
+const apprOf = x => Array.isArray(x.approvals) ? x.approvals : [];
 const NEXT = {"Social posts":"Next: copy into the social media scheduler. In the next version approved posts go there automatically.", "Newsletter":"Next: paste into the email tool. In the next version it arrives there as a draft."};
 let names = {};
 async function resolveNames(){
-  if (!user) return; const ids = [...new Set(S.queue.flatMap(x => [x.by, x.reviewedBy]).filter(Boolean))].filter(id => !(id in names));
+  if (!user) return; const ids = [...new Set(S.queue.flatMap(x => [x.by, x.reviewedBy, ...apprOf(x).map(a => a.by)]).filter(id => id && id !== "anon"))].filter(id => !(id in names));
   if (!ids.length) return; try { const ps = await user.profiles(ids); for (const id of ids) names[id] = ps[id]?.name || "Someone"; renderQueueOnly(); } catch {}
 }
 function renderQueue(){ renderQueueOnly(); resolveNames(); }
@@ -1379,14 +1387,17 @@ function renderQueueOnly(){
   const list = S.queue.filter(x => x.status === S.qFilter).sort((a,b) => (b.updatedAt||b.createdAt||"").localeCompare(a.updatedAt||a.createdAt||""));
   $("#queue").innerHTML = list.map(x => { const rn = x.reviewedBy && names[x.reviewedBy]; return `
     <article class="memo" data-id="${esc(x.id)}">
-      <span class="stamp ${x.status}">${STATUSES[x.status]}${x.reviewedAt && x.status !== "needs_review" ? `<small>${dayMon(x.reviewedAt)}${rn ? " · " + esc(rn) : ""}</small>` : ""}</span>
+      <span class="stamp ${x.status}">${STATUSES[x.status]}${x.status === "needs_review" && apprOf(x).length ? `<small>${apprOf(x).length} of ${needOf(x)} approvals</small>` : x.reviewedAt && x.status !== "needs_review" ? `<small>${dayMon(x.reviewedAt)}${rn ? " · " + esc(rn) : ""}</small>` : ""}</span>
       <dl class="mhead"><dt>MEMO</dt><dd>${esc(x.kind)}</dd><dt>RE</dt><dd>${esc(x.title)}</dd><dt>DATE</dt><dd>${fmtDate(x.createdAt)}${x.by && names[x.by] ? " · from " + esc(names[x.by]) : ""}${x.edited ? " · edited" : ""}${x.auto ? " · drafted automatically" : ""}</dd></dl>
       <div class="mbody md" id="qb-${esc(x.id)}">${md(x.body)}</div>
+      ${(() => { const need = needOf(x), ap = apprOf(x); if (x.status === "rejected" || x.status === "changes") return ""; const who = ap.map(a => `${esc(a.by && names[a.by] ? names[a.by] : a.by === "anon" ? "Someone" : "A reviewer")} · ${dayMon(a.at)}`).join(", "); return `<div class="appr">${Array.from({length:need}, (_, i) => `<span class="pip ${i < ap.length ? "on" : ""}"></span>`).join("")}<span><b>${ap.length} of ${need} approval${need > 1 ? "s" : ""}</b>${need > 1 ? " (Giulio and someone from the comms team)" : ""}${who ? ": " + who : ""}</span></div>`; })()}
+      ${x.redrafts ? `<p class="redrafted">Redrafted by Claude${x.prevNote ? ` after the note: “${esc(x.prevNote)}”` : ""}. Check it again before approving.</p>` : ""}
       ${x.note ? `<p class="warn"><b>Reviewer note:</b> ${esc(x.note)}</p>` : ""}
       ${x.status === "approved" && x.kind === "Bid outline" ? `<div class="subcheck"><b>Before anyone submits:</b><ul>${SUBMIT_CHECK.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>` : ""}
       ${x.status === "approved" && NEXT[x.kind] ? `<div class="subcheck">${esc(NEXT[x.kind])}</div>` : ""}
       <div class="stampbar">
-        ${x.status !== "approved" ? `<button class="sbtn approve" data-q-act="approve">Approved</button>` : ""}
+        ${x.status !== "approved" ? `<button class="sbtn approve" data-q-act="approve">${needOf(x) > 1 ? `Approve · ${Math.min(apprOf(x).length + 1, needOf(x))} of ${needOf(x)}` : "Approve"}</button>` : ""}
+        ${x.status === "changes" ? `<button class="btn sm primary ai" data-q-act="redraft">Redraft with Claude</button>` : ""}
         ${x.status !== "changes" ? `<button class="sbtn changes" data-q-act="changes">Send back</button>` : ""}
         ${x.status !== "rejected" ? `<button class="sbtn reject" data-q-act="reject">Not now</button>` : ""}
         <span style="flex:1"></span>
@@ -1545,14 +1556,31 @@ $("#dr-send").addEventListener("click", async () => {
 async function queueAction(b, qa){
   const card = b.closest(".memo"), id = card.dataset.id, x = S.queue.find(i => i.id === id); if (!x) return;
   const now = new Date().toISOString(), rev = uid ? {reviewedBy:uid} : {};
-  if (qa === "approve"){ await updateDoc("queue", id, {status:"approved", note:"", reviewedAt:now, updatedAt:now, ...rev}); toast("Stamped: Approved"); }
+  if (qa === "approve"){
+    const need = needOf(x), me = uid || "anon", ap = x.status === "needs_review" ? apprOf(x).slice() : [];
+    if (ap.some(a => a.by === me)){ toast(me === "anon" ? "This needs a second, signed-in person to approve it." : "You've already approved this. It now needs someone else, from the comms team."); return; }
+    ap.push({by:me, at:now}); const done = ap.length >= need;
+    await updateDoc("queue", id, {approvals:ap, status: done ? "approved" : "needs_review", note:"", reviewedAt:now, updatedAt:now, ...rev});
+    toast(done ? "Stamped: Approved" : `Approval ${ap.length} of ${need} saved. It now needs a second person, from the comms team.`);
+  }
+  if (qa === "redraft"){
+    b.disabled = true; b.textContent = "Claude is redrafting…";
+    try {
+      const prompt = `You are revising a draft for Tech-West England Advocates (TWEA) after a reviewer sent it back.\n\n${profileBlock()}\n\nDRAFT TYPE: ${x.kind}\nTITLE: ${x.title}\n\nCURRENT DRAFT:\n${x.body}\n\nREVIEWER NOTE:\n${x.note || "(no note given: tighten it and make it clearer)"}\n\nRewrite the draft so it follows the reviewer note. Keep the same structure and the same section labels (for example "LinkedIn:", "X:", "Instagram:", "Photo description (alt text):" or "## " headings). Use only facts already in the draft, the note or the TWEA profile; never invent facts, names, numbers, dates or links. Keep anything still missing in [square brackets]. Reply with only the revised draft, nothing else.`;
+      let out = ""; const ret = await sample(prompt, {cache:false, onText:({text}) => { out = text; }});
+      const text = String((typeof ret === "string" ? ret : ret && ret.text) || out || "").trim();
+      if (!text) throw {code:"invalid_json"};
+      await updateDoc("queue", id, {body:text, status:"needs_review", approvals:[], prevNote:x.note || "", note:"", redrafts:(x.redrafts || 0) + 1, edited:true, updatedAt:new Date().toISOString()});
+      S.qFilter = "needs_review"; renderQueueOnly(); toast("Redrafted. It's back in Waiting for approval.");
+    } catch(err){ toast(aiError(err)); b.disabled = false; b.textContent = "Redraft with Claude"; }
+  }
   if (qa === "expand"){ $("#qb-"+id)?.classList.toggle("open"); b.textContent = b.textContent === "Read all" ? "Show less" : "Read all"; }
   if (qa === "copy") copyText(x.body);
   if (qa === "changes" || qa === "reject"){ const r = card.querySelector("[data-note-row]"); r.hidden = false; r.dataset.target = qa === "changes" ? "changes" : "rejected"; r.querySelector("input").focus(); }
-  if (qa === "confirm"){ const r = card.querySelector("[data-note-row]"); await updateDoc("queue", id, {status:r.dataset.target, note:r.querySelector("input").value.trim(), reviewedAt:now, updatedAt:now, ...rev}); toast(r.dataset.target === "changes" ? "Stamped: Sent back" : "Stamped: Not now"); }
+  if (qa === "confirm"){ const r = card.querySelector("[data-note-row]"); await updateDoc("queue", id, {status:r.dataset.target, approvals:[], note:r.querySelector("input").value.trim(), reviewedAt:now, updatedAt:now, ...rev}); toast(r.dataset.target === "changes" ? "Stamped: Sent back" : "Stamped: Not now"); }
   if (qa === "edit"){
     if (b.textContent === "Edit"){ $("#qb-"+id).outerHTML = `<textarea id="qe-${esc(id)}" aria-label="Edit the draft">${esc(x.body)}</textarea>`; b.textContent = "Save changes"; }
-    else { await updateDoc("queue", id, {body:$("#qe-"+id).value, updatedAt:now, edited:true}); toast("Changes saved"); renderQueueOnly(); }
+    else { const nb = $("#qe-"+id).value; if (nb === x.body){ renderQueueOnly(); return; } const reset = x.status === "approved" || apprOf(x).length > 0; await updateDoc("queue", id, {body:nb, updatedAt:now, edited:true, ...(reset ? {approvals:[], status:"needs_review"} : {})}); toast(reset ? "Changes saved. Approvals were reset so everyone signs off the final text." : "Changes saved"); renderQueueOnly(); }
   }
 }
 
