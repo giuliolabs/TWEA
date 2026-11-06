@@ -1429,7 +1429,10 @@ $("#story-form").addEventListener("submit", async e => {
 });
 $("#nl-quarter").addEventListener("change", renderNewsletter);
 $("#nl-build").addEventListener("click", () => buildNewsletter($("#nl-quarter").value));
-$("#pf-save").addEventListener("click", async () => { const p = {text:$("#pf-text").value, voice:$("#pf-voice").value}; S.profile = p; await setPath("settings/profile", p); $("#pf-status").textContent = "Saved. Claude uses this from the next draft."; });
+$("#pf-save").addEventListener("click", async () => { const p = {text:$("#pf-text").value, voice:$("#pf-voice").value}; S.profile = p; await setPath("settings/profile", p);
+  if (db){ $("#pf-status").textContent = "Saved for everyone. Claude uses this from the next draft."; return; }
+  let kept = false; try { localStorage.setItem("twea_profile", JSON.stringify(p)); kept = true; } catch {}
+  $("#pf-status").innerHTML = (kept ? "Saved on this device only. " : "Not saved: this browser blocks storage. ") + 'To change it for everyone, <a href="https://github.com/giuliolabs/TWEA/edit/main/data/profile.json" target="_blank" rel="noopener">edit profile.json on GitHub</a>.'; });
 
 $("#dr-close").addEventListener("click", closeDrawer);
 $("#scrim").addEventListener("click", closeDrawer);
@@ -1466,7 +1469,9 @@ async function queueAction(b, qa){
 /* GitHub version: when hosted from TWEA's repository (no Claude account), read the files the scheduled GitHub jobs write */
 async function loadRepoData(){
   const get = async f => { try { const r = await fetch("data/" + f, {cache:"no-store"}); return r.ok ? await r.json() : null; } catch { return null; } };
-  const [o, st, q, r] = await Promise.all([get("opps.json"), get("stories.json"), get("queue.json"), get("runs.json")]);
+  const [o, st, q, r, pf] = await Promise.all([get("opps.json"), get("stories.json"), get("queue.json"), get("runs.json"), get("profile.json")]);
+  let local = null; try { local = JSON.parse(localStorage.getItem("twea_profile") || "null"); } catch {}
+  const prof = local || pf; if (prof && prof.text){ S.profile = {text:prof.text, voice:prof.voice || DEFAULT_VOICE}; S.profileFilled = false; fillProfile(); if (local) $("#pf-status").textContent = "Showing the version saved on this device."; }
   if (!o && !st && !q && !r) return;
   if (Array.isArray(o)) S.opps = o; if (Array.isArray(st)) S.stories = st; if (Array.isArray(q)) S.queue = q; if (Array.isArray(r)) S.runs = r;
   window.__repoMode = true; setDb("on", "Loaded from TWEA's GitHub");
