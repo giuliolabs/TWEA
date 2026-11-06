@@ -337,6 +337,10 @@ details.full-form[open] > summary::before{content:"– "}
   .ab-facts dd{border-top:0;padding-top:0}
   .ab-hero{padding:18px}
 }
+.ro-banner{background:var(--amber-soft);border-radius:10px;padding:12px 14px;font-size:15px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.ro-banner .btn{margin-left:auto}
+.ro-note{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(460px,calc(100% - 32px));background:var(--card);border:2px solid var(--amber);border-radius:12px;padding:14px 16px;z-index:61;box-shadow:0 8px 30px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:10px;font-size:15.5px}
+.ai.ai-off{opacity:.6}
 @media (prefers-reduced-motion: reduce){.thinking i{animation:none}}
 @media (max-width:1000px){
   .hero,.two,.quick{grid-template-columns:minmax(0,1fr)}
@@ -563,6 +567,7 @@ details.full-form[open] > summary::before{content:"– "}
           <p>Log each event, founder win or partnership once. It becomes social posts today, part of the newsletter at the end of the quarter, and evidence for the next bid.</p>
         </div>
       </div>
+      <div class="ro-banner" data-ro hidden><b>Public view.</b> Logging stories and drafting posts only work in the Claude version of this tool. Anything added or approved there appears here automatically at 9am, 1pm and 5pm. <a class="btn sm" href="https://claude.ai/artifact/7vBjLWJmoin3MimPh3gmCB" target="_blank" rel="noopener">Open the Claude version</a></div>
       <div class="quick">
         <form class="card" id="event-form" autocomplete="off">
           <h3>At an event now?</h3>
@@ -629,6 +634,7 @@ details.full-form[open] > summary::before{content:"– "}
           <p>Every draft lands here as a memo. Read it and edit it if needed, then stamp it. Only Approved items move on, and a person still presses send.</p>
         </div>
       </div>
+      <div class="ro-banner" data-ro hidden><b>Public view.</b> Editing and stamping drafts only work in the Claude version of this tool. Anything added or approved there appears here automatically at 9am, 1pm and 5pm. <a class="btn sm" href="https://claude.ai/artifact/7vBjLWJmoin3MimPh3gmCB" target="_blank" rel="noopener">Open the Claude version</a></div>
       <div class="filters" id="q-filters" role="group" aria-label="Show memos by stamp"></div>
       <div id="queue" style="display:flex;flex-direction:column;gap:18px"></div>
     </section>
@@ -830,6 +836,7 @@ details.full-form[open] > summary::before{content:"– "}
   </footer>
 </aside>
 <div class="toast" id="toast" hidden></div>
+<div class="ro-note" id="ro-note" role="alertdialog" aria-live="polite" hidden><p id="ro-msg"></p><div class="row"><a class="btn sm primary" id="ro-link" href="https://claude.ai/artifact/7vBjLWJmoin3MimPh3gmCB" target="_blank" rel="noopener">Open the Claude version</a><button class="btn sm" type="button" id="ro-close">Close</button></div></div>
 
 <script>
 /* ---------- Funding routes researched and checked 4 Nov 2026 ---------- */
@@ -1063,19 +1070,24 @@ const S = { stories:[], queue:[], opps:[], runs:[], scores:{}, profile:{text:DEF
 let db = null, sample = null, user = null, uid = null, aiState = "checking";
 function lid(){ return "l" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function dbErr(e){ toast(e && e.code === "invalid_argument" ? "You can view this page but not change it." : e && e.code === "quota_exceeded" ? "Storage is full. Delete some old items first." : "Couldn't save. Please try again."); }
+function readOnly(){ if (!window.__repoMode) return false; showNote("This is the public view, so nothing can be saved here. Add stories, edit and approve drafts in the Claude version, and they will appear here at the next update (9am, 1pm or 5pm)."); return true; }
 async function addDoc(col, data){
+  if (readOnly()) throw {code:"read_only"};
   if (db){ try { const r = await db.collection(col).add(data); return r.id; } catch(e){ dbErr(e); throw e; } }
   const id = lid(); S[col].unshift({id, ...data}); renderAll(); return id;
 }
 async function updateDoc(col, id, patch){
+  if (readOnly()) throw {code:"read_only"};
   if (db){ try { await db.doc(col + "/" + id).update(patch); } catch(e){ dbErr(e); } return; }
   const it = S[col].find(x => x.id === id); if (it) Object.assign(it, patch); renderAll();
 }
 async function delDoc(col, id){
+  if (readOnly()) throw {code:"read_only"};
   if (db){ try { await db.doc(col + "/" + id).delete(); } catch(e){ dbErr(e); } return; }
   S[col] = S[col].filter(x => x.id !== id); renderAll();
 }
 async function setPath(path, data){
+  if (readOnly()) throw {code:"read_only"};
   if (db){ try { await db.doc(path).set(data); } catch(e){ dbErr(e); } return; }
   const [c, id] = path.split("/");
   if (c === "scores") S.scores[id] = data;
@@ -1105,7 +1117,8 @@ function setAi(state){
   aiState = state;
   $("#ai-dot").className = "dot " + (state === "on" ? "on" : state === "off" ? "off" : "");
   $("#ai-label").textContent = state === "on" ? "Claude is ready" : window.__repoMode ? "Live drafting is in the Claude version" : state === "off" ? "Claude is not available here" : "Checking Claude…";
-  document.querySelectorAll(".ai").forEach(b => { b.disabled = state !== "on"; b.title = state === "off" ? "Open this page in Claude, signed in, to use the writing features" : ""; });
+  document.querySelectorAll(".ai").forEach(b => { b.disabled = false; b.classList.toggle("ai-off", state !== "on"); b.title = state === "off" ? "Open this page in Claude, signed in, to use the writing features" : ""; });
+  document.querySelectorAll("[data-ro]").forEach(el => el.hidden = !window.__repoMode);
 }
 function aiError(e){
   const c = e && e.code;
@@ -1461,7 +1474,7 @@ async function scoreOpps(list, btn){
       await setPath("scores/" + r.id, {score:Number(r.score)||0, verdict:String(r.verdict||""), reasons:(r.reasons||[]).map(String), risks:(r.risks||[]).map(String), next_step:String(r.next_step||""), checkedAt:new Date().toISOString()}); }
     toast(n > 1 ? `Checked ${n} funding routes` : "Checked");
   } catch(err){ toast(aiError(err)); }
-  finally { btn.textContent = old; btn.disabled = aiState !== "on"; renderFunding(); }
+  finally { btn.textContent = old; btn.disabled = false; renderFunding(); }
 }
 $("#score-all").addEventListener("click", e => { const l = allOpps().filter(o => matches(o) && o.lane !== "filtered" && (!o.deadline || daysTo(o.deadline) >= 0)).slice(0, 30); if (!l.length){ toast("Nothing to check in this selection"); return; } scoreOpps(l, e.currentTarget); });
 $("#opp-search").addEventListener("input", e => { S.q = e.target.value; renderFunding(); });
@@ -1479,7 +1492,7 @@ $("#opp-extract").addEventListener("click", async e => {
     await addDoc("opps", {funder:String(r.funder||"Unknown funder"), name:String(r.name), amount:String(r.amount||"Not stated"), deadline:r.deadline && !isNaN(new Date(r.deadline)) ? String(r.deadline) : null, when:String(r.when||""), good:String(r.good||""), who:String(r.who||""), src:/^https?:\/\//.test(r.src||"") ? r.src : "", lane, view:String(r.view||""), cont:CONTS[r.cont] && r.cont !== "AN" ? r.cont : "GL", country:String(r.country||"Worldwide"), area:String(r.area||""), type:TYPES.includes(r.type) ? r.type : "Grant", forWho:WHO[r.forWho] ? r.forWho : "TWEA", max:0, addedAt:new Date().toISOString()});
     $("#opp-paste").value = ""; st.textContent = `Added "${r.name}" as ${LANES[lane].label}.`; S.lane = "all"; renderFunding();
   } catch(err){ st.textContent = aiError(err); }
-  finally { btn.disabled = aiState !== "on"; }
+  finally { btn.disabled = false; }
 });
 $("#event-form").addEventListener("submit", async e => {
   e.preventDefault();
@@ -1500,7 +1513,7 @@ $("#paste-go").addEventListener("click", async e => {
     await addDoc("stories", {title:String(r.title), date, type:String(r.type||"Event"), what:String(r.what||""), people:String(r.people||""), numbers:String(r.numbers||""), link:"", consent:false, createdAt:new Date().toISOString(), ...(uid ? {by:uid} : {})});
     $("#paste-text").value = ""; st.textContent = `Saved "${r.title}". It's internal only until you mark it OK to share.`;
   } catch(err){ st.textContent = aiError(err); }
-  finally { btn.disabled = aiState !== "on"; }
+  finally { btn.disabled = false; }
 });
 $("#story-form").addEventListener("submit", async e => {
   e.preventDefault();
@@ -1551,11 +1564,21 @@ async function loadRepoData(){
   if (!o && !st && !q && !r) return;
   if (Array.isArray(o)) S.opps = o; if (Array.isArray(st)) S.stories = st; if (Array.isArray(q)) S.queue = q; if (Array.isArray(r)) S.runs = r;
   window.__repoMode = true; setDb("on", "Loaded from TWEA's GitHub");
-  $("#ai-label").textContent = "Live drafting is in the Claude version";
+  setAi("off");
   renderAll();
 }
 
 /* ---------- Start ---------- */
+function showNote(msg){ $("#ro-msg").textContent = msg; $("#ro-link").hidden = false; $("#ro-note").hidden = false; }
+$("#ro-close").addEventListener("click", () => $("#ro-note").hidden = true);
+addEventListener("unhandledrejection", e => { if (e.reason && e.reason.code === "read_only") e.preventDefault(); });
+document.addEventListener("click", e => {
+  const b = e.target.closest(".ai"); if (!b || aiState === "on") return;
+  e.preventDefault(); e.stopImmediatePropagation();
+  if (window.__repoMode) showNote("Writing with Claude only works in the Claude version of this tool. Open it there to turn messages into stories, draft posts and bids. Results appear here at the next update (9am, 1pm or 5pm).");
+  else if (aiState === "checking") toast("Claude is still starting. Try again in a few seconds.");
+  else showNote("Claude can't write here. Open this tool in the Claude app or at claude.ai, signed in, to use the writing features.");
+}, true);
 $("#st-date").value = new Date().toISOString().slice(0,10);
 route(); renderAll(); setAi("checking");
 (async () => {
