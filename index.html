@@ -304,6 +304,39 @@ details.full-form[open] > summary::before{content:"– "}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:10px;font-size:15px;z-index:60;max-width:calc(100% - 32px);font-weight:700}
 .warn{font-size:14.5px;background:var(--amber-soft);color:var(--amber);padding:9px 12px;border-radius:9px}
 
+/* About */
+.ab-hero{background:var(--blue-soft);border-radius:14px;padding:24px 26px;display:flex;flex-direction:column;gap:12px}
+.ab-hero .label{color:var(--blue)}
+.ab-lead{font-size:clamp(17px,1.6vw,20px);line-height:1.55;max-width:72ch;color:var(--ink)}
+.ab-tags{display:flex;flex-wrap:wrap;gap:8px}
+.ab-tags span{background:var(--card);color:var(--blue);font-weight:700;font-size:13.5px;border-radius:999px;padding:4px 12px}
+.ab-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ab-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.ab-card h2{font-size:20px}
+.ab-card p{font-size:16px}
+.ab-wide{grid-column:1/-1}
+.ab-accent{border-left:6px solid var(--go)}
+.ab-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:16px}
+.ab-list li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:10px;align-items:baseline}
+.ab-list li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--blue);transform:translateY(-1px)}
+.ab-chips{display:flex;flex-wrap:wrap;gap:8px}
+.ab-chips span{background:var(--go-soft);color:var(--go);font-weight:700;font-size:14.5px;border-radius:999px;padding:6px 14px}
+.ab-facts{display:grid;grid-template-columns:170px minmax(0,1fr);gap:0;margin:0}
+.ab-facts dt,.ab-facts dd{padding:12px 0;border-top:1px solid var(--line);margin:0}
+.ab-facts dt:first-of-type,.ab-facts dt:first-of-type + dd{border-top:0}
+.ab-facts dt{font-weight:700;color:var(--muted);font-size:14.5px;padding-right:14px}
+.ab-facts dd{font-size:16px;overflow-wrap:anywhere}
+.ab-voice{background:var(--paper);border-style:dashed}
+.ab-rules{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px;font-size:16px}
+.ab-rules li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px}
+.ab-rules li::before{content:"✓";color:var(--go);font-weight:700}
+@media (max-width:820px){
+  .ab-grid,.ab-rules{grid-template-columns:minmax(0,1fr)}
+  .ab-facts{grid-template-columns:minmax(0,1fr)}
+  .ab-facts dt{padding-bottom:2px}
+  .ab-facts dd{border-top:0;padding-top:0}
+  .ab-hero{padding:18px}
+}
 @media (prefers-reduced-motion: reduce){.thinking i{animation:none}}
 @media (max-width:1000px){
   .hero,.two,.quick{grid-template-columns:minmax(0,1fr)}
@@ -717,15 +750,68 @@ details.full-form[open] > summary::before{content:"– "}
     <section class="view" data-view="about" hidden>
       <div class="pagehead">
         <div>
-          <div class="label">Settings</div>
+          <div class="label">Our brief</div>
           <h1>About TWEA</h1>
-          <p>Claude reads this before it checks funding fit or writes anything. The more exact it is, the better the drafts. TWEA's legal structure matters most, because it decides which funds we can apply to ourselves.</p>
+          <p>Who we are and how we sound. Claude works from this brief whenever it checks funding fit or writes a draft, so every bid, post and newsletter starts from the same facts.</p>
         </div>
       </div>
-      <div class="card" style="display:flex;flex-direction:column;gap:14px">
-        <label class="f">Who TWEA is, what it does and who it serves <textarea id="pf-text" rows="10"></textarea></label>
-        <label class="f">How we sound in posts and newsletters <textarea id="pf-voice" rows="4"></textarea></label>
-        <div class="row"><button class="btn primary" id="pf-save">Save</button><span class="small" id="pf-status"></span></div>
+
+      <div class="ab-hero">
+        <div class="label">Who TWEA is, what it does and who it serves</div>
+        <p class="ab-lead">Tech-West England Advocates (TWEA) is the West of England group of the Global Tech Advocates (GTA) network, founded by Richard Lowe. It is a not-for-profit, volunteer-led community that supports tech founders and scale-ups across the West of England, the South West and the West Midlands, and connects them with partners, investors and international markets.</p>
+        <div class="ab-tags"><span>Not-for-profit</span><span>Part of Global Tech Advocates</span><span>West of England · South West · West Midlands</span></div>
+      </div>
+
+      <div class="ab-grid">
+        <article class="ab-card">
+          <h2>What we do</h2>
+          <ul class="ab-list">
+            <li>Events and founder clinics</li>
+            <li>International trade missions</li>
+            <li>Sector ambassadors</li>
+            <li>A quarterly newsletter</li>
+          </ul>
+        </article>
+        <article class="ab-card">
+          <h2>Partners have included</h2>
+          <ul class="ab-list">
+            <li>DSIT / the Department for Business and Trade</li>
+            <li>The University of the West of England</li>
+            <li>UK Tech Advocates</li>
+            <li>Tech London Advocates &amp; Global Tech Advocates</li>
+          </ul>
+        </article>
+        <article class="ab-card ab-wide ab-accent">
+          <h2>2027 priorities</h2>
+          <p>Stronger support for regional and UK scale-ups, and connecting more capital to ambitious founders, especially at Series A and beyond, through the GTA Innovation Funding Working Group.</p>
+        </article>
+        <article class="ab-card ab-wide">
+          <h2>Founder skills we want to fund</h2>
+          <div class="ab-chips"><span>Pitching and investment readiness</span><span>Practical AI and automation</span><span>International growth</span><span>Fair access for under-represented founders</span></div>
+        </article>
+      </div>
+
+      <div class="ab-card">
+        <h2>How TWEA is organised</h2>
+        <dl class="ab-facts">
+          <dt>Organisation</dt><dd>A not-for-profit. Like all Tech Advocates networks, TWEA has a sole Founder and a group of volunteer Ambassadors, run in a more structured way than most.</dd>
+          <dt>Income</dt><dd>Very small at present, so not a headline in bids.</dd>
+          <dt>Plan for 2027</dt><dd>Commercialise more by bringing in more funding and sponsorship.</dd>
+          <dt>Where we are now</dt><dd>Moving into a new phase, having built credibility through our events and trade missions. In 2027 TWEA will professionalise its volunteer Ambassador roles with clear expectations; a welcome pack for Ambassadors is being shared in December 2026.</dd>
+          <dt>Contact</dt><dd><a href="mailto:contact@techwestenglandadvocates.co.uk">contact@techwestenglandadvocates.co.uk</a></dd>
+        </dl>
+      </div>
+
+      <div class="ab-card ab-voice">
+        <h2>How we sound in posts and newsletters</h2>
+        <ul class="ab-rules">
+          <li><span><b>Warm, confident and practical.</b></span></li>
+          <li><span><b>UK English.</b></span></li>
+          <li><span><b>Celebrate founders by name,</b> but only with their consent.</span></li>
+          <li><span><b>Short sentences,</b> and no hype words like &ldquo;revolutionary&rdquo;.</span></li>
+          <li><span><b>One clear call to action.</b></span></li>
+          <li><span><b>2–4 hashtags</b> on LinkedIn.</span></li>
+        </ul>
       </div>
     </section>
   </main>
@@ -929,14 +1015,15 @@ const IDEAS = [
   {id:"trade", t:"Trade mission packs", p:"Briefing packs for trips abroad such as Hong Kong: who is going, who to meet, the schedule.", how:"Delegate form → Claude briefing → approval.", e:"Medium", i:"Medium"}
 ];
 const DEFAULT_PROFILE = `Tech-West England Advocates (TWEA) is the West of England group of the Global Tech Advocates (GTA) network, founded by Richard Lowe. It is a not-for-profit, volunteer-led community that supports tech founders and scale-ups across the West of England, the South West and the West Midlands, and connects them with partners, investors and international markets.
-What we do: events and founder clinics; international trade missions (e.g. the UK Tech Mission to the Greater Bay Area, China, Nov 2026, and the New Horizons Health Tech Mission to Boston, Apr 2027, led by TWEA); sector ambassadors (e.g. Chris Born, HealthTech Ambassador); and a quarterly newsletter. Partners have included DSIT/the Department for Business and Trade, the University of the West of England, UK Tech Advocates and Tech London Advocates & Global Tech Advocates.
-2027 priorities (announced after the GTA Summit Istanbul 2026): stronger support for regional and UK scale-ups, and connecting more capital to ambitious founders, especially at Series A and beyond, through the GTA Innovation Funding Working Group.
+What we do: events and founder clinics; international trade missions; sector ambassadors; and a quarterly newsletter. Partners have included DSIT/the Department for Business and Trade, the University of the West of England, UK Tech Advocates and Tech London Advocates & Global Tech Advocates.
+2027 priorities: stronger support for regional and UK scale-ups, and connecting more capital to ambitious founders, especially at Series A and beyond, through the GTA Innovation Funding Working Group.
 Founder skills we want to fund: pitching and investment readiness, practical AI and automation, international growth, and fair access for under-represented founders.
 Contact: contact@techwestenglandadvocates.co.uk
-Organisation: a not-for-profit. Like all Tech Advocates networks, TWEA has a sole Founder (Richard Lowe) and a group of volunteer Ambassadors, run in a more structured way than most. Registered form, if a funder asks (e.g. CIC, charity or unincorporated association): [to confirm with Richard].
-Income: very small at present, so not a headline in bids. Plan for 2027: commercialise more by bringing in more funding and sponsorship.
+Organisation: a not-for-profit. Like all Tech Advocates networks, TWEA has a sole Founder and a group of volunteer Ambassadors, run in a more structured way than most.
+Income: very small at present, so not a headline in bids.
+Plan for 2027: commercialise more by bringing in more funding and sponsorship.
 Where we are now: moving into a new phase, having built credibility through our events and trade missions. In 2027 TWEA will professionalise its volunteer Ambassador roles with clear expectations; a welcome pack for Ambassadors is being shared in December 2026.`;
-const DEFAULT_VOICE = `Warm, confident and practical. UK English. Celebrate founders by name, but only with their consent. Short sentences, and no hype words like "revolutionary". One clear call to action. 2–4 hashtags on LinkedIn, e.g. #BristolTech #WestOfEngland #TechWestEngland.`;
+const DEFAULT_VOICE = `Warm, confident and practical. UK English. Celebrate founders by name, but only with their consent. Short sentences, and no hype words like "revolutionary". One clear call to action. 2–4 hashtags on LinkedIn.`;
 const SUBMIT_CHECK = ["Governing document and legal structure confirmed", "Latest accounts, plus a bank statement from the last 3 months", "At least 2 unrelated board or committee members (Lottery)", "Safeguarding and equality policies", "Budget signed off by the treasurer", "A named person submits on the funder's own portal and makes the declarations", "Rewrite in our own words: some funders, like the Lottery, reject applications written by others"];
 
 /* ---------- Helpers ---------- */
@@ -972,7 +1059,7 @@ function gauge(score){
 async function copyText(t){ try{ await navigator.clipboard.writeText(t); toast("Copied"); } catch { toast("Copy was blocked here. Select the text and copy it yourself."); } }
 
 /* ---------- State + data (shared store when available, this browser otherwise) ---------- */
-const S = { stories:[], queue:[], opps:[], runs:[], scores:{}, profile:{text:DEFAULT_PROFILE, voice:DEFAULT_VOICE}, roadmap:{}, lane:"all", q:"", f:{cont:"", country:"", area:"", who:"", type:"", when:"any", hideOut:false, sort:"lane", layout:"cards"}, qFilter:"needs_review", loaded:false, profileFilled:false };
+const S = { stories:[], queue:[], opps:[], runs:[], scores:{}, profile:{text:DEFAULT_PROFILE, voice:DEFAULT_VOICE}, roadmap:{}, lane:"all", q:"", f:{cont:"", country:"", area:"", who:"", type:"", when:"any", hideOut:false, sort:"lane", layout:"cards"}, qFilter:"needs_review", loaded:false };
 let db = null, sample = null, user = null, uid = null, aiState = "checking";
 function lid(){ return "l" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
 function dbErr(e){ toast(e && e.code === "invalid_argument" ? "You can view this page but not change it." : e && e.code === "quota_exceeded" ? "Storage is full. Delete some old items first." : "Couldn't save. Please try again."); }
@@ -992,7 +1079,6 @@ async function setPath(path, data){
   if (db){ try { await db.doc(path).set(data); } catch(e){ dbErr(e); } return; }
   const [c, id] = path.split("/");
   if (c === "scores") S.scores[id] = data;
-  if (path === "settings/profile") S.profile = data;
   if (path === "settings/roadmap") S.roadmap = data.map || {};
   renderAll();
 }
@@ -1009,8 +1095,8 @@ function subscribe(){
   db.collection("opps").onSnapshot(s => { S.opps = docs(s); done(s); renderAll(); }, fail);
   db.collection("scores").onSnapshot(s => { S.scores = Object.fromEntries(s.docs.map(d => [d.id, d.data()])); done(s); renderAll(); }, fail);
   db.collection("settings").onSnapshot(s => {
-    for (const d of s.docs){ if (d.id === "profile") S.profile = {...S.profile, ...d.data()}; if (d.id === "roadmap") S.roadmap = d.data().map || {}; }
-    done(s); fillProfile(); renderAll();
+    for (const d of s.docs){ if (d.id === "roadmap") S.roadmap = d.data().map || {}; }
+    done(s); renderAll();
   }, fail);
 }
 
@@ -1306,10 +1392,6 @@ function renderIdeas(){
       <div class="seg" role="group" aria-label="When to build ${esc(i.t)}">${["now","next","later"].map(k => `<button type="button" data-idea="${i.id}" data-pri="${k}" aria-pressed="${v===k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join("")}</div>
     </article>`; }).join("");
 }
-function fillProfile(){
-  if (S.profileFilled && [$("#pf-text"), $("#pf-voice")].includes(document.activeElement)) return;
-  $("#pf-text").value = S.profile.text; $("#pf-voice").value = S.profile.voice; S.profileFilled = true;
-}
 function renderAll(){ renderAuto(); renderHome(); renderFunding(); renderStories(); renderNewsletter(); renderQueue(); renderIdeas(); }
 
 
@@ -1429,10 +1511,6 @@ $("#story-form").addEventListener("submit", async e => {
 });
 $("#nl-quarter").addEventListener("change", renderNewsletter);
 $("#nl-build").addEventListener("click", () => buildNewsletter($("#nl-quarter").value));
-$("#pf-save").addEventListener("click", async () => { const p = {text:$("#pf-text").value, voice:$("#pf-voice").value}; S.profile = p; await setPath("settings/profile", p);
-  if (db){ $("#pf-status").textContent = "Saved for everyone. Claude uses this from the next draft."; return; }
-  let kept = false; try { localStorage.setItem("twea_profile", JSON.stringify(p)); kept = true; } catch {}
-  $("#pf-status").innerHTML = (kept ? "Saved on this device only. " : "Not saved: this browser blocks storage. ") + 'To change it for everyone, <a href="https://github.com/giuliolabs/TWEA/edit/main/data/profile.json" target="_blank" rel="noopener">edit profile.json on GitHub</a>.'; });
 
 $("#dr-close").addEventListener("click", closeDrawer);
 $("#scrim").addEventListener("click", closeDrawer);
@@ -1469,9 +1547,7 @@ async function queueAction(b, qa){
 /* GitHub version: when hosted from TWEA's repository (no Claude account), read the files the scheduled GitHub jobs write */
 async function loadRepoData(){
   const get = async f => { try { const r = await fetch("data/" + f, {cache:"no-store"}); return r.ok ? await r.json() : null; } catch { return null; } };
-  const [o, st, q, r, pf] = await Promise.all([get("opps.json"), get("stories.json"), get("queue.json"), get("runs.json"), get("profile.json")]);
-  let local = null; try { local = JSON.parse(localStorage.getItem("twea_profile") || "null"); } catch {}
-  const prof = local || pf; if (prof && prof.text){ S.profile = {text:prof.text, voice:prof.voice || DEFAULT_VOICE}; S.profileFilled = false; fillProfile(); if (local) $("#pf-status").textContent = "Showing the version saved on this device."; }
+  const [o, st, q, r] = await Promise.all([get("opps.json"), get("stories.json"), get("queue.json"), get("runs.json")]);
   if (!o && !st && !q && !r) return;
   if (Array.isArray(o)) S.opps = o; if (Array.isArray(st)) S.stories = st; if (Array.isArray(q)) S.queue = q; if (Array.isArray(r)) S.runs = r;
   window.__repoMode = true; setDb("on", "Loaded from TWEA's GitHub");
@@ -1481,7 +1557,7 @@ async function loadRepoData(){
 
 /* ---------- Start ---------- */
 $("#st-date").value = new Date().toISOString().slice(0,10);
-fillProfile(); route(); renderAll(); setAi("checking");
+route(); renderAll(); setAi("checking");
 (async () => {
   if (!window.claude || !window.claude.use){ setAi("off"); setDb("off", "Saved in this browser only"); loadRepoData(); return; }
   const [s, d, u] = await Promise.all([claude.use("sample"), claude.use("db"), claude.use("user")]);
